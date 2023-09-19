@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C1635231-FE84-48F1-AE08-1DA5F9A8F171}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Models</RootNamespace>
+    <AssemblyName>Models</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\ViberAPI\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\ViberAPI\packages\NLog.5.1.0\lib\net46\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChatMessage.cs" />
+    <Compile Include="HashPassword.cs" />
+    <Compile Include="LoggerMy.cs" />
+    <Compile Include="Messages\Requests\ArseniumOfflineRequest.cs" />
+    <Compile Include="Messages\Requests\ArseniumOnlineRequest.cs" />
+    <Compile Include="Messages\Requests\AttachOperatorRequest.cs" />
+    <Compile Include="Messages\Requests\AwayRequest.cs" />
+    <Compile Include="Messages\Requests\ChangeOperatorRequest.cs" />
+    <Compile Include="Messages\Requests\ChangeTypeRequest.cs" />
+    <Compile Include="Messages\Requests\ClientBusyRequest.cs" />
+    <Compile Include="Messages\Requests\FileFromViberRequest.cs" />
+    <Compile Include="Messages\Requests\FileToViberRequest.cs" />
+    <Compile Include="Messages\Requests\FindUserRequest.cs" />
+    <Compile Include="Messages\Requests\FixMessageRequest.cs" />
+    <Compile Include="Messages\Requests\ImageToViberRequest.cs" />
+    <Compile Include="Messages\Requests\LoginRequest.cs" />
+    <Compile Include="Messages\Requests\LogoutRequest.cs" />
+    <Compile Include="Messages\Requests\MessageDeliveredRequest.cs" />
+    <Compile Include="Messages\Requests\MessageFromViberRequest.cs" />
+    <Compile Include="Messages\Requests\MessageSeenRequest.cs" />
+    <Compile Include="Messages\Requests\MessageToViberRequest.cs" />
+    <Compile Include="Messages\Requests\MessageViberPhone.cs" />
+    <Compile Include="Messages\Requests\NewConversationRequest.cs" />
+    <Compile Include="Messages\Requests\PingRequest.cs" />
+    <Compile Include="Messages\Requests\PoolsListRequest.cs" />
+    <Compile Include="Messages\Requests\ReConnectRequest.cs" />
+    <Compile Include="Messages\Requests\ReturnAwayRequest.cs" />
+    <Compile Include="Messages\Requests\FindOperatorRequest.cs" />
+    <Compile Include="Messages\Requests\UserDetailsBuhnetRequest.cs" />
+    <Compile Include="Messages\Requests\UserDetailsRequest.cs" />
+    <Compile Include="Messages\Requests\UserListRequest.cs" />
+    <Compile Include="Messages\Responses\FileToViberResponse.cs" />
+    <Compile Include="Messages\Responses\FindUserResponse.cs" />
+    <Compile Include="Messages\Responses\ImageToViberResponse.cs" />
+    <Compile Include="Messages\Responses\LoginResponse.cs" />
+    <Compile Include="Messages\Responses\MessageToViberResponse.cs" />
+    <Compile Include="Messages\Responses\PingResponse.cs" />
+    <Compile Include="Messages\Responses\FindOperatorResponse.cs" />
+    <Compile Include="Messages\Responses\PoolsListResponse.cs" />
+    <Compile Include="Messages\Responses\UserDetailsBuhnetResponse.cs" />
+    <Compile Include="Messages\Responses\UserDetailsResponse.cs" />
+    <Compile Include="Messages\Responses\UserListResponse.cs" />
+    <Compile Include="Messages\UserBuhnet.cs" />
+    <Compile Include="Network\TCPServer.cs" />
+    <Compile Include="Permissions.cs" />
+    <Compile Include="Pool.cs" />
+    <Compile Include="UserArsenium.cs" />
+    <Compile Include="UserViber.cs" />
+    <Compile Include="Messages\Message.cs" />
+    <Compile Include="Messages\Request.cs" />
+    <Compile Include="Messages\Response.cs" />
+    <Compile Include="Network\Common.cs" />
+    <Compile Include="Network\MessageHandler.cs" />
+    <Compile Include="Network\Session.cs" />
+    <Compile Include="Network\SessionManager.cs" />
+    <Compile Include="Network\SocketClient.cs" />
+    <Compile Include="Network\SocketListener.cs" />
+    <Compile Include="Network\Tools.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="User.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
