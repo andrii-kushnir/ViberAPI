@@ -14,6 +14,8 @@ using System.Net.Http;
 using System.Net;
 using System.IO;
 using System.Threading;
+using RozetkaAPI;
+using Chat = RozetkaAPI.ModelsRozetka.Chat;
 
 namespace ViberAPI
 {
@@ -27,8 +29,6 @@ namespace ViberAPI
         private readonly HttpClient _httpClient;
 
         private static readonly List<Click> clicks = new List<Click>();
-        private readonly Timer _timerClicks;
-
         private class Click
         {
             public string id;
@@ -36,14 +36,32 @@ namespace ViberAPI
             public DateTime dateTime;
         }
 
+        private readonly Timer _timerClicks;
+        private readonly Timer _timerRozetkaLogin;
+        private readonly Timer _timerRozetka;
+        private readonly Timer _timerProm;
+
+        private static readonly List<PromAPI.ModelsProm.Message> messagesProm = new List<PromAPI.ModelsProm.Message>();
+
+        private ApiManager _rozetkaApi;
+        private PromAPI.ApiManager _promApi;
+
         private const int intervalClear = 60 * 60 * 1000; // Кількість хвилин неактивності
         private const int intervalChek = 60 * 1000; // Інтервал провірки неактивності
+        private const int intervalLoginRozetka = 23 * 60 * 60 * 1000; // Інтервал перелогування Розетка(час життя токену)
+        private const int intervalChekRozetka = 3 * 60 * 1000; // Інтервал зачитки повідомлень Розетка
+        private const int intervalChekProm = 3 * 60 * 1000; // Інтервал зачитки повідомлень Prom
 
         public HandlerManager()
         {
             Logger.Info($"Start HandlerManager...");
             if (Current == null)
                 Current = this;
+
+            _rozetkaApi = new RozetkaAPI.ApiManager();
+            RozetkaLogin(null);
+
+            _promApi = new PromAPI.ApiManager();
 
             SessionManager.Current.NewSessionConnected += OnNewSessionConnected;
             SessionManager.Current.SessionClosed += OnSessionClosed;
@@ -52,6 +70,9 @@ namespace ViberAPI
             _httpClient.DefaultRequestHeaders.Add("X-Viber-Auth-Token", Program.authToken);
 
             _timerClicks = new Timer(new TimerCallback(SendMainMenu), null, intervalChek, intervalChek);
+            _timerRozetkaLogin = new Timer(new TimerCallback(RozetkaLogin), null, intervalLoginRozetka, intervalLoginRozetka);
+            _timerRozetka = new Timer(new TimerCallback(ChekMessageRozetka), null, intervalChekRozetka, intervalChekRozetka);
+            _timerProm = new Timer(new TimerCallback(ChekMessageProm), null, intervalChekProm, intervalChekProm);
         }
 
         public void OnNewSessionConnected(object sender, SessionEventArgs e)
@@ -307,7 +328,6 @@ namespace ViberAPI
             if (sendOperator)
                 await UserManager.Current.SendToOperatorsAsync(sender, new MessageFromViberRequest(message, DateTime.Now, sender));
         }
-
 
         public async Task AddAndSendFileAsync(UserViber sender, string fileUrl, string fileName, ChatMessageTypes messageTypes)
         {
@@ -673,6 +693,95 @@ namespace ViberAPI
                 click.action = "no activity";
             }
             clicks.RemoveAll(c => c.action == "no activity");
+        }
+
+        private void RozetkaLogin(object obj)
+        {
+            var rozetkaLogin = _rozetkaApi.Login();
+            if (rozetkaLogin == null || !rozetkaLogin.success)
+            {
+                Logger.Error("Помилка генерування токену на Розетці!");
+            }
+        }
+
+        private async void ChekMessageRozetka(object obj)
+        {
+            if (!UserManager.Current.IsOnlineOperator()) return;
+
+            var count = _rozetkaApi.GetMessagesCount();
+            if (!count.success || count.content.totalUnread == 0) return;
+            List<Chat> allchat = new List<Chat>();
+            if (count.content.ordersChatUnread != 0)
+            {
+                var chats = ApiManager.Current.GetMessagesOrder("orders")?.content.chats;
+                if (chats != null)
+                {
+                    allchat.AddRange(chats);
+                }
+            }
+            if (count.content.itemsChatUnread != 0)
+            {
+                var chats = ApiManager.Current.GetMessagesOrder("items")?.content.chats;
+                if (chats != null)
+                {
+                    allchat.AddRange(chats);
+                }
+            }
+            foreach (var chat in allchat)
+            {
+                var user = new UserRozetka()
+                {
+                    UserType = UserTypes.Rozetka,
+                    Id = Guid.NewGuid(),
+                    Name = chat.user.contact_fio,
+                    user_id = chat.user.id
+                };
+                await UserManager.Current.SendToAllOperatorsAsync(new NewMessageRozetkaRequest(user, chat));
+            }
+        }
+
+        private async void ChekMessageProm(object obj)
+        {
+            if (!UserManager.Current.IsOnlineOperator()) return;
+            var messages = _promApi.GetChatMessages(null, out string error);
+            if (!String.IsNullOrEmpty(error))
+                Logger.Error("Пром GetChatMessages(null): " + error);
+            if (messages.Count == 0) return;
+            AddMessageProm(messages);
+            var rooms = messages.GroupBy(m => m.room_ident).Select(g => g.First().room_ident).ToList();
+            foreach (var room in rooms)
+            {
+                var messagesUser = messagesProm.Where(m => m.room_ident == room).ToList();
+                var context = messagesUser.FirstOrDefault(m => m.type == "context");
+                if (context == null)
+                {
+                    messagesUser = _promApi.GetChatMessages(room, out error);
+                    if (!String.IsNullOrEmpty(error))
+                        Logger.Error("Пром GetChatMessages(room): " + error);
+                    if (messagesUser.Count == 0) break;
+                    AddMessageProm(messagesUser);
+                }
+                messagesUser = messagesUser.OrderBy(m => m.date_sent).ToList();
+                var message = messagesUser.FirstOrDefault(m => (!m.is_sender)) ?? messagesUser[messagesUser.Count - 1];
+                var user = new UserProm()
+                {
+                    UserType = UserTypes.Prom,
+                    Id = Guid.NewGuid(),
+                    Name = message.user_name,
+                    user_ident = message.user_ident,
+                    user_phone = message.user_phone
+                };
+                await UserManager.Current.SendToAllOperatorsAsync(new NewMessagePromRequest(user, messagesUser));
+            }
+        }
+
+        private void AddMessageProm(List<PromAPI.ModelsProm.Message> messages)
+        {
+            foreach (var message in messages)
+            {
+                if (messagesProm.Any(m => m.id == message.id))
+                    messagesProm.Add(message);
+            }
         }
     }
 }

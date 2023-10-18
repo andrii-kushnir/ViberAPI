@@ -63,6 +63,7 @@ namespace ViberAPI
             if (_Queue.Count >= _MaximumLength)
             {
                 Logger.Error($"Переповнення черги запитів SQL.");
+                Logger.Error(query);
                 _Queue.Clear();
             }
 
@@ -316,6 +317,7 @@ namespace ViberAPI
         public void SaveViberMessagesSQL(ChatMessage message, UserViber userViber = null)
         {
             var text = Regex.Replace(message.Text, @"'", @"''");
+            var name = Regex.Replace(userViber.Name, @"'", @"''");
             var query = $"INSERT INTO [dbo].[ArseniumMessages] ([token], [ownerId], [receiverId], [type], [text], [dateCreate], [dateDelivered], [dateSeen]) SELECT 0, V.id, NULL, {(int)message.ChatMessageType}, '{text}','{message.DateCreate:yyyy-MM-dd HH:mm:ss}', NULL, NULL FROM [dbo].[ArseniumViberClients] V WHERE V.guid = '{message.Owner}'";
             Enqueue100(query);
             switch (message.ChatMessageType)
@@ -328,21 +330,21 @@ namespace ViberAPI
                         "2" => 5,
                         _ => 5
                     };
-                    query = $"INSERT INTO [dbo].[ViberPoll] ([codep], [namep], [phone], [codesk], [coden], [dateBuy], [sended], [dateSend], [viberId], [viberName], [nrating], [datePoll], [respond], [readAdmin], [commAdmin], [inviteId], [inviteStat], [namesk], [sumall], [nameop]) VALUES (0, NULL, '{userViber.phone ?? "000000000000"}', 5, 0, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', 4, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', '{userViber.idViber}', '{userViber.Name}', {markPoll}, '{DateTime.Now:yyyy-MM-dd HH:mm:ss}', '', 0, '', NULL, NULL, 'Маркетплейс', 0, 'Viber')";
+                    query = $"INSERT INTO [dbo].[ViberPoll] ([codep], [namep], [phone], [codesk], [coden], [dateBuy], [sended], [dateSend], [viberId], [viberName], [nrating], [datePoll], [respond], [readAdmin], [commAdmin], [inviteId], [inviteStat], [namesk], [sumall], [nameop]) VALUES (0, NULL, '{userViber.phone ?? "000000000000"}', 5, 0, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', 4, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', '{userViber.idViber}', '{name}', {markPoll}, '{DateTime.Now:yyyy-MM-dd HH:mm:ss}', '', 0, '', NULL, NULL, 'Маркетплейс', 0, 'Viber')";
                     Enqueue100(query);
                     break;
                 case ChatMessageTypes.Complaint:
                     if (userViber.messageList.Any(m => m.ChatMessageType.MsgPool() && (message.DateCreate - m.DateCreate).TotalMinutes < 24 * 60))
                         query = $"EXECUTE [dbo].[us_Viber_ClientText] '{userViber.idViber}', 'Скарга: {text}', '{message.DateCreate:yyyy-MM-dd HH:mm:ss}'";
                     else
-                        query = $"INSERT INTO [dbo].[ViberPoll] ([codep], [namep], [phone], [codesk], [coden], [dateBuy], [sended], [dateSend], [viberId], [viberName], [nrating], [datePoll], [respond], [readAdmin], [commAdmin], [inviteId], [inviteStat], [namesk], [sumall], [nameop]) VALUES (0, NULL, '{userViber.phone ?? "000000000000"}', 5, 0, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', 4, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', '{userViber.idViber}', '{userViber.Name}', 1, '{DateTime.Now:yyyy-MM-dd HH:mm:ss}', 'Скарга: {text}', 0, '', NULL, NULL, 'Маркетплейс', 0, 'Viber')";
+                        query = $"INSERT INTO [dbo].[ViberPoll] ([codep], [namep], [phone], [codesk], [coden], [dateBuy], [sended], [dateSend], [viberId], [viberName], [nrating], [datePoll], [respond], [readAdmin], [commAdmin], [inviteId], [inviteStat], [namesk], [sumall], [nameop]) VALUES (0, NULL, '{userViber.phone ?? "000000000000"}', 5, 0, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', 4, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', '{userViber.idViber}', '{name}', 1, '{DateTime.Now:yyyy-MM-dd HH:mm:ss}', 'Скарга: {text}', 0, '', NULL, NULL, 'Маркетплейс', 0, 'Viber')";
                     Enqueue100(query);
                     break;
                 case ChatMessageTypes.Offer:
                     if (userViber.messageList.Any(m => m.ChatMessageType.MsgPool() && (message.DateCreate - m.DateCreate).TotalMinutes < 24 * 60))
                         query = $"EXECUTE [dbo].[us_Viber_ClientText] '{userViber.idViber}', 'Пропозиція: {text}', '{message.DateCreate:yyyy-MM-dd HH:mm:ss}'";
                     else
-                        query = $"INSERT INTO [dbo].[ViberPoll] ([codep], [namep], [phone], [codesk], [coden], [dateBuy], [sended], [dateSend], [viberId], [viberName], [nrating], [datePoll], [respond], [readAdmin], [commAdmin], [inviteId], [inviteStat], [namesk], [sumall], [nameop]) VALUES (0, NULL, '{userViber.phone ?? "000000000000"}', 5, 0, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', 4, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', '{userViber.idViber}', '{userViber.Name}', 5, '{DateTime.Now:yyyy-MM-dd HH:mm:ss}', 'Пропозиція: {text}', 0, '', NULL, NULL, 'Маркетплейс', 0, 'Viber')";
+                        query = $"INSERT INTO [dbo].[ViberPoll] ([codep], [namep], [phone], [codesk], [coden], [dateBuy], [sended], [dateSend], [viberId], [viberName], [nrating], [datePoll], [respond], [readAdmin], [commAdmin], [inviteId], [inviteStat], [namesk], [sumall], [nameop]) VALUES (0, NULL, '{userViber.phone ?? "000000000000"}', 5, 0, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', 4, '{message.DateCreate:yyyy-MM-dd HH:mm:ss}', '{userViber.idViber}', '{name}', 5, '{DateTime.Now:yyyy-MM-dd HH:mm:ss}', 'Пропозиція: {text}', 0, '', NULL, NULL, 'Маркетплейс', 0, 'Viber')";
                     Enqueue100(query);
                     break;
             }

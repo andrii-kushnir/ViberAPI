@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Models;
+using Chat = RozetkaAPI.ModelsRozetka.Chat;
 
 namespace Arsenium
 {
@@ -39,9 +40,15 @@ namespace Arsenium
         private Image _avatar;
         public BlinkType Blinking { get; set; }
         public ClientSessionWin ClientWindow { get; set; }
+        public ClientRozetkaWin RozetkaWindow { get; set; }
+        public ClientPromWin PromWindow { get; set; }
         public PopUp PopUpWindow { get; set; }
+        public PopUp PopUpRozetkaWindow { get; set; }
+        public PopUp PopUpPromWindow { get; set; }
         public bool WaitOperator { get; set; } = false;
         public DetailsInfo DetailsInfo { get; set; }
+        public Chat ChatRozetka { get; set; }
+        public List<PromAPI.ModelsProm.Message> MessagesProm { get; set; }
 
         public Client()
         {

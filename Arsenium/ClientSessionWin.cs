@@ -18,9 +18,7 @@ namespace Arsenium
 {
     public partial class ClientSessionWin : Form
     {
-        private readonly string[] MonthNames = { "січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня" };
         private const int TimeWidth = 28;
-        private const int TimeHeight = 10;
         private const int IconWidth = 18;
         private const int IconHeight = 18;
         private const int ScrollWidth = 19;
@@ -149,7 +147,8 @@ namespace Arsenium
                 
                 if (dateMessage != message.DateCreate.ToString("yyyy.MM.dd"))
                 {
-                    ShowDateLabel(message.DateCreate);
+                    //ShowDateLabel(message.DateCreate);
+                    Infrastructure.ShowDateLabel(pTalk, message.DateCreate, ref _posOnPanel);
                     dateMessage = message.DateCreate.ToString("yyyy.MM.dd");
                 }
 
@@ -378,21 +377,21 @@ namespace Arsenium
             Program.Session.Send(request);
         }
 
-        private void ShowDateLabel(DateTime date)
-        {
-            var label = new Label()
-            {
-                Parent = pTalk,
-                Text = $"  {date.Day} {MonthNames[date.Month - 1]} {date.Year}  ",
-                Font = new Font("Times New Roman", 9.75F, FontStyle.Italic, GraphicsUnit.Point, ((byte)(204))),
-                ForeColor = Color.Black,
-                BackColor = Color.Plum,
-                AutoSize = true
-            };
-            label.Location = new Point((pTalk.Width - label.Width) / 2, _posOnPanel - pTalk.VerticalScroll.Value);
-            SetRoundedShape(label);
-            _posOnPanel += label.Height + 1;
-        }
+        //private void ShowDateLabel(DateTime date)
+        //{
+        //    var label = new Label()
+        //    {
+        //        Parent = pTalk,
+        //        Text = $"  {date.Day} {MonthNames[date.Month - 1]} {date.Year}  ",
+        //        Font = new Font("Times New Roman", 9.75F, FontStyle.Italic, GraphicsUnit.Point, ((byte)(204))),
+        //        ForeColor = Color.Black,
+        //        BackColor = Color.Plum,
+        //        AutoSize = true
+        //    };
+        //    label.Location = new Point((pTalk.Width - label.Width) / 2, _posOnPanel - pTalk.VerticalScroll.Value);
+        //    Infrastructure.SetRoundedShape(label);
+        //    _posOnPanel += label.Height + 1;
+        //}
 
         private Control ShowMessageOwn(ChatMessage message)
         {
@@ -425,8 +424,8 @@ namespace Arsenium
             Size size = TextRenderer.MeasureText(labelMessage.Text, labelMessage.Font, MaxSize, TextFormatFlags.WordBreak);
             labelMessage.ClientSize = new Size(size.Width, size.Height);
             labelMessage.Location = new Point(pTalk.Width - labelMessage.Width - TimeWidth - IconWidth - ScrollWidth - 7, _posOnPanel - pTalk.VerticalScroll.Value);
-            SetRoundedShape(labelMessage);
-            var time = ShowMessageTime(labelMessage, message.DateCreate);
+            Infrastructure.SetRoundedShape(labelMessage);
+            var time = Infrastructure.ShowMessageTime(pTalk, labelMessage, message.DateCreate);
             var labelIcon = ShowMessageIcon(time, message);
             labelMessage.Click += new System.EventHandler(this.label_Click);
             _posOnPanel += labelMessage.Height + 1;
@@ -455,8 +454,8 @@ namespace Arsenium
             labelMessage.ClientSize = new Size(size.Width, size.Height);
 
             labelMessage.Location = new Point(pTalk.Width - labelMessage.Width - TimeWidth - IconWidth - ScrollWidth - 7, _posOnPanel - pTalk.VerticalScroll.Value);
-            SetRoundedShape(labelMessage);
-            var time = ShowMessageTime(labelMessage, message.DateCreate);
+            Infrastructure.SetRoundedShape(labelMessage);
+            var time = Infrastructure.ShowMessageTime(pTalk, labelMessage, message.DateCreate);
             var labelIcon = ShowMessageIcon(time, message);
             labelMessage.Click += new System.EventHandler(this.label_Click);
             _posOnPanel += labelMessage.Height + 1;
@@ -483,7 +482,7 @@ namespace Arsenium
             }
             imageMessage.Size = imageMessage.Image.Size;
             imageMessage.Location = new Point(pTalk.Width - imageMessage.Width - TimeWidth - IconWidth - ScrollWidth - 7, _posOnPanel - pTalk.VerticalScroll.Value);
-            var time = ShowMessageTime(imageMessage, message.DateCreate);
+            var time = Infrastructure.ShowMessageTime(pTalk, imageMessage, message.DateCreate);
             var labelIcon = ShowMessageIcon(time, message);
             imageMessage.Click += new System.EventHandler(this.label_Click);
             _posOnPanel += imageMessage.Height + 1;
@@ -503,7 +502,7 @@ namespace Arsenium
                 AutoSize = true
             };
             labelMessage.Location = new Point(pTalk.Width - labelMessage.Width - ScrollWidth - 1, _posOnPanel - pTalk.VerticalScroll.Value);
-            SetRoundedShape(labelMessage);
+            Infrastructure.SetRoundedShape(labelMessage);
             _posOnPanel += labelMessage.Height + 1;
         }
 
@@ -551,8 +550,8 @@ namespace Arsenium
             };
             Size size = TextRenderer.MeasureText(labelMessage.Text, labelMessage.Font, MaxSize, TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl);
             labelMessage.ClientSize = new Size(size.Width, size.Height);
-            SetRoundedShape(labelMessage);
-            ShowMessageTime(labelMessage, message.DateCreate);
+            Infrastructure.SetRoundedShape(labelMessage);
+            Infrastructure.ShowMessageTime(pTalk, labelMessage, message.DateCreate);
             pTalk.ScrollControlIntoView(labelMessage);
             labelMessage.Click += new System.EventHandler(this.label_Click);
             _posOnPanel += labelMessage.Height + 1;
@@ -594,8 +593,8 @@ namespace Arsenium
             Size size = TextRenderer.MeasureText(labelMessage.Text, labelMessage.Font, MaxSize, TextFormatFlags.WordBreak);
             labelMessage.ClientSize = new Size(size.Width, size.Height);
 
-            SetRoundedShape(labelMessage);
-            ShowMessageTime(labelMessage, message.DateCreate);
+            Infrastructure.SetRoundedShape(labelMessage);
+            Infrastructure.ShowMessageTime(pTalk, labelMessage, message.DateCreate);
             pTalk.ScrollControlIntoView(labelMessage);
             labelMessage.Click += (object sender, EventArgs e) =>
             {
@@ -631,7 +630,7 @@ namespace Arsenium
                 TabStop = false
             };
 
-            ShowMessageTime(imageMessage, message.DateCreate);
+            Infrastructure.ShowMessageTime(pTalk, imageMessage, message.DateCreate);
             pTalk.ScrollControlIntoView(imageMessage);
             imageMessage.Click += (object sender, EventArgs e) =>
             {
@@ -673,21 +672,21 @@ namespace Arsenium
             }
         }
 
-        private Control ShowMessageTime(Control control, DateTime date)
-        {
-            var labelTime = new Label()
-            {
-                Parent = pTalk,
-                Text = date.ToString("HH:mm"),
-                Font = new Font("Times New Roman", 6.75F, FontStyle.Italic, GraphicsUnit.Point, ((byte)(204))),
-                ForeColor = Color.Black,
-                BackColor = Color.White,
-                Location = new Point(control.Right + 1, control.Bottom - TimeHeight),
-                AutoSize = true
-            };
-            SetRoundedShape(labelTime);
-            return labelTime;
-        }
+        //private Control ShowMessageTime(Control control, DateTime date)
+        //{
+        //    var labelTime = new Label()
+        //    {
+        //        Parent = pTalk,
+        //        Text = date.ToString("HH:mm"),
+        //        Font = new Font("Times New Roman", 6.75F, FontStyle.Italic, GraphicsUnit.Point, ((byte)(204))),
+        //        ForeColor = Color.Black,
+        //        BackColor = Color.White,
+        //        Location = new Point(control.Right + 1, control.Bottom - TimeHeight),
+        //        AutoSize = true
+        //    };
+        //    Infrastructure.SetRoundedShape(labelTime);
+        //    return labelTime;
+        //}
 
         private Control ShowMessageIcon(Control control, ChatMessage message)
         {
@@ -878,31 +877,6 @@ namespace Arsenium
             _checkList.Add(message.MessageId, labelIcon);
             Program.Session.Send(request);
             tbSendMessage.Text = "";
-        }
-
-        private static void SetRoundedShape(Control control)
-        {
-            var path = new System.Drawing.Drawing2D.GraphicsPath();
-            float h2 = control.Height / 2f;
-            if (control.Height <= 20)
-            {
-                path.AddLine(h2, 0, control.Width - h2, 0);
-                path.AddArc(control.Width - control.Height, 0, control.Height, control.Height, 270, 180);
-                path.AddLine(control.Width - h2, control.Height, h2, control.Height);
-                path.AddArc(0, 0, control.Height, control.Height, 90, 180);
-            }
-            else
-            {
-                path.AddArc(0, 0, 10, 10, 180, 90);
-                path.AddLine(5, 0, control.Width - 5, 0);
-                path.AddArc(control.Width - 10, 0, 10, 10, 270, 90);
-                path.AddLine(control.Width, 5, control.Width, control.Height - 5);
-                path.AddArc(control.Width - 10, control.Height - 10, 10, 10, 0, 90);
-                path.AddLine(control.Width - 5, control.Height, 5, control.Height);
-                path.AddArc(0, control.Height - 10, 10, 10, 90, 90);
-                path.AddLine(0, control.Height - 5, 0, 5);
-            }
-            control.Region = new Region(path);
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)

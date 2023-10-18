@@ -73,9 +73,13 @@ namespace Arsenium
             this.treeMain.ImageList = _iconsList;
             _iconsList.Images.Add("Default", _imageDefault);
             _iconsList.Images.Add("Viber", "https://viber.ars.ua/free-icon-viber-3670059.png"?.GetIconFromWebImage() ?? _imageDefault);
+            _iconsList.Images.Add("Rozetka", "https://viber.ars.ua/Rozetka.png"?.GetIconFromWebImage() ?? _imageDefault);
+            _iconsList.Images.Add("Prom", "https://viber.ars.ua/Prom.png"?.GetIconFromWebImage() ?? _imageDefault);
             _iconsList.Images.Add("Ars", "https://viber.ars.ua/OldArs.png"?.GetIconFromWebImage() ?? _imageDefault);
 
             this.treeMain.Nodes.Add(new TreeNode("Клієнти(Вайбер)", _iconsList.Images.IndexOfKey("Viber"), _iconsList.Images.IndexOfKey("Viber")) { Name = "ViberClients" });
+            this.treeMain.Nodes.Add(new TreeNode("Клієнти(Розетка)", _iconsList.Images.IndexOfKey("Rozetka"), _iconsList.Images.IndexOfKey("Rozetka")) { Name = "RozetkaClients" });
+            this.treeMain.Nodes.Add(new TreeNode("Клієнти(Prom)", _iconsList.Images.IndexOfKey("Prom"), _iconsList.Images.IndexOfKey("Prom")) { Name = "PromClients" });
             this.treeMain.Nodes.Add(new TreeNode("Працівники(ARSenium)", _iconsList.Images.IndexOfKey("Ars"), _iconsList.Images.IndexOfKey("Ars")) { Name = "ARSeniumClients" });
             //this.treeMain.Nodes.Add(new TreeNode("Інші контакти", _iconsList.Images.IndexOfKey("Ars"), _iconsList.Images.IndexOfKey("Ars")) { Name = "OtherClients" });
             foreach (var client in ClientManager.GetAllClients().OrderBy(cl => (cl.DetailsInfo == null) ? DateTime.Now : cl.DetailsInfo.MessageList.Max(m => m.DateCreate)).ToList())
@@ -122,12 +126,22 @@ namespace Arsenium
                     client.Node = new TreeNode(clientName, _iconsList.Images.IndexOfKey(client.Id.ToString()), _iconsList.Images.IndexOfKey(client.Id.ToString())) { Tag = client, Name = client.Id.ToString(), BackColor = Color.White };
                     this.treeMain.Nodes.Find("ARSeniumClients", false)[0].Nodes.Add(client.Node);
                     break;
-                //case UserTypes.Telegram:
-                //    this.treeMain.Nodes.Find("OtherClients", false)[0].Nodes.Add(client.Node);
-                //    break;
-                //case UserTypes.Unknown:
-                //    this.treeMain.Nodes.Find("OtherClients", false)[0].Nodes.Add(client.Node);
-                //    break;
+                case UserTypes.Rozetka:
+                    clientName = $"{client.NameShow}";
+                    client.Node = new TreeNode(clientName, _iconsList.Images.IndexOfKey("Rozetka"), _iconsList.Images.IndexOfKey("Rozetka")) { Tag = client, Name = client.Id.ToString(), BackColor = Color.White };
+                    this.treeMain.Nodes.Find("RozetkaClients", false)[0].Nodes.Add(client.Node);
+                    break;
+                case UserTypes.Prom:
+                    clientName = $"{client.NameShow}";
+                    client.Node = new TreeNode(clientName, _iconsList.Images.IndexOfKey("Prom"), _iconsList.Images.IndexOfKey("Prom")) { Tag = client, Name = client.Id.ToString(), BackColor = Color.White };
+                    this.treeMain.Nodes.Find("PromClients", false)[0].Nodes.Add(client.Node);
+                    break;
+                    //case UserTypes.Telegram:
+                    //    this.treeMain.Nodes.Find("OtherClients", false)[0].Nodes.Add(client.Node);
+                    //    break;
+                    //case UserTypes.Unknown:
+                    //    this.treeMain.Nodes.Find("OtherClients", false)[0].Nodes.Add(client.Node);
+                    //    break;
             }
             this.treeMain.ExpandAll();
         }
@@ -171,34 +185,60 @@ namespace Arsenium
             var node = e.Node;
             var client = (Client)node.Tag;
             if (client == null) return;
-            if (client.Type == UserTypes.Viber)
+            switch (client.Type)
             {
-                ClientManager.SetNodeUnblink(client);
-                if (client.DetailsInfo == null)
-                {
-                    Program.Session.Send(new UserDetailsRequest(new User(client.Id, null, null, UserTypes.Viber)));
-                    var i = 0;
-                    while(client.DetailsInfo == null && i <= 3000)
-                    {
-                        System.Threading.Thread.Sleep(50);
-                        i += 50;
-                    }
-                }
-
-                if (client.ClientWindow == null || client.ClientWindow.IsDisposed)
-                {
+                case UserTypes.Viber:
+                    ClientManager.SetNodeUnblink(client);
                     if (client.DetailsInfo == null)
                     {
-                        MessageBox.Show("Дані по контакту не можуть бути отримані.");
-                        return;
+                        Program.Session.Send(new UserDetailsRequest(new User(client.Id, null, null, UserTypes.Viber)));
+                        var i = 0;
+                        while (client.DetailsInfo == null && i <= 3000)
+                        {
+                            System.Threading.Thread.Sleep(50);
+                            i += 50;
+                        }
                     }
-                    client.ClientWindow = new ClientSessionWin(client) { Text = $"Далог з {client.NameShow}" };
-                    client.ClientWindow.Show();
-                }
-                else
-                {
-                    client.ClientWindow.Focus();
-                }
+
+                    if (client.ClientWindow == null || client.ClientWindow.IsDisposed)
+                    {
+                        if (client.DetailsInfo == null)
+                        {
+                            MessageBox.Show("Дані по контакту не можуть бути отримані.");
+                            return;
+                        }
+                        client.ClientWindow = new ClientSessionWin(client) { Text = $"Далог з {client.NameShow}" };
+                        client.ClientWindow.Show();
+                    }
+                    else
+                    {
+                        client.ClientWindow.Focus();
+                    }
+                    break;
+                case UserTypes.Rozetka:
+                    ClientManager.SetNodeUnblink(client);
+                    if (client.RozetkaWindow == null || client.RozetkaWindow.IsDisposed)
+                    {
+                        client.RozetkaWindow = new ClientRozetkaWin(client);
+                        client.RozetkaWindow.Show();
+                    }
+                    else
+                    {
+                        client.RozetkaWindow.Focus();
+                    }
+                    break;
+                case UserTypes.Prom:
+                    ClientManager.SetNodeUnblink(client);
+                    if (client.PromWindow == null || client.PromWindow.IsDisposed)
+                    {
+                        client.PromWindow = new ClientPromWin(client);
+                        client.PromWindow.Show();
+                    }
+                    else
+                    {
+                        client.PromWindow.Focus();
+                    }
+                    break;
             }
         }
 

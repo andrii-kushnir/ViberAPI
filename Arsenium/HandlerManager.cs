@@ -610,6 +610,92 @@ namespace Arsenium
                             }));
                     }
                     break;
+                case MessageTypes.NewMessageRozetkaRequest:
+                    {
+                        var message = JsonConvert.DeserializeObject<NewMessageRozetkaRequest>(e.MessageJSON);
+                        var client = ClientManager.GetAllClients().FirstOrDefault(c => c.Id == message.UserRozetka.Id);
+                        if (client == null)
+                        {
+                            client = new Client(message.UserRozetka.Id, message.UserRozetka.Name, null, UserTypes.Rozetka) { ChatRozetka = message.Chat};
+                            ClientManager.Add(client);
+                            Program.MainWin.Invoke(new Action(() =>
+                            {
+                                Program.MainWin.AddClient(client);
+                            }));
+                        }
+                        else
+                        {
+                            client.ChatRozetka = message.Chat;
+                        }
+                        var chatMessage = client.ChatRozetka.messages[client.ChatRozetka.messages.Count - 1];
+
+                        if (client.RozetkaWindow == null || client.RozetkaWindow.IsDisposed || Form.ActiveForm != client.RozetkaWindow)
+                        {
+                            ClientManager.SetNodeBlink(client);
+
+#warning Розетка: доробити PopUpRozetkaWindow (спливаюче вікно)
+//                            if ((client.PopUpRozetkaWindow == null || client.PopUpRozetkaWindow.IsDisposed) && (Form.ActiveForm != Program.MainWin))
+//                            {
+//                                Program.MainWin.Invoke(new Action(() =>
+//                                {
+//#warning доробити PopUpRozetkaWindow(спливаюче вікно для Розетка)
+//                                    //client.PopUpRozetkaWindow = new PopUp(client, message.UserViber.operatoName, message.Message.Text);
+//                                    //client.PopUpRozetkaWindow.Show();
+//                                }));
+//                            }
+                        }
+
+                        if (client.RozetkaWindow != null && !client.RozetkaWindow.IsDisposed)
+                        {
+                            Program.MainWin.Invoke(new Action(() =>
+                            {
+                                client.RozetkaWindow.RefreshMessages(client.ChatRozetka);
+                            }));
+                        }
+                    }
+                    break;
+                case MessageTypes.NewMessagePromRequest:
+                    {
+                        var message = JsonConvert.DeserializeObject<NewMessagePromRequest>(e.MessageJSON);
+                        var client = ClientManager.GetAllClients().FirstOrDefault(c => c.Id == message.UserProm.Id);
+                        if (client == null)
+                        {
+                            client = new Client(message.UserProm.Id, message.UserProm.Name, null, UserTypes.Prom) { MessagesProm = message.Messages };
+                            ClientManager.Add(client);
+                            Program.MainWin.Invoke(new Action(() =>
+                            {
+                                Program.MainWin.AddClient(client);
+                            }));
+                        }
+                        else
+                        {
+                            client.MessagesProm = message.Messages;
+                        }
+
+                        if (client.PromWindow == null || client.PromWindow.IsDisposed || Form.ActiveForm != client.PromWindow)
+                        {
+                            ClientManager.SetNodeBlink(client);
+
+                            if ((client.PopUpPromWindow == null || client.PopUpPromWindow.IsDisposed) && (Form.ActiveForm != Program.MainWin))
+                            {
+                                Program.MainWin.Invoke(new Action(() =>
+                                {
+#warning Пром: доробити PopUpPromWindow(спливаюче вікно)
+                                    //client.PopUpPromWindow = new PopUp(client, message.UserViber.operatoName, message.Message.Text);
+                                    //client.PopUpPromWindow.Show();
+                                }));
+                            }
+                        }
+
+                        if (client.PromWindow != null && !client.PromWindow.IsDisposed)
+                        {
+                            Program.MainWin.Invoke(new Action(() =>
+                            {
+                                client.PromWindow.RefreshMessages(client.MessagesProm);
+                            }));
+                        }
+                    }
+                    break;
             }
         }
 

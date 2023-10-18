@@ -153,6 +153,7 @@ namespace Models.Network
             {
                 var messageJSON = Encoding.UTF8.GetString(args.Message);
                 var message = JsonConvert.DeserializeObject<Message>(messageJSON);
+#warning Тут можна залогувати усі отримані повідомлення:
                 //Logger.Info($"Отримано: {messageJSON}");
                 MessageReceive.Raise(this, new SessionMessageEventArgs(this, message.MessageType, messageJSON));
             }

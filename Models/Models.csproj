@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Models</RootNamespace>
     <AssemblyName>Models</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,11 +32,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\ViberAPI\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\ViberAPI\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\ViberAPI\packages\NLog.5.1.0\lib\net46\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="RozetkaAPI">
+      <HintPath>..\..\RozetkaAPI\RozetkaAPI\bin\Debug\RozetkaAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -73,6 +77,8 @@
     <Compile Include="Messages\Requests\MessageToViberRequest.cs" />
     <Compile Include="Messages\Requests\MessageViberPhone.cs" />
     <Compile Include="Messages\Requests\NewConversationRequest.cs" />
+    <Compile Include="Messages\Requests\NewMessagePromRequest.cs" />
+    <Compile Include="Messages\Requests\NewMessageRozetkaRequest.cs" />
     <Compile Include="Messages\Requests\PingRequest.cs" />
     <Compile Include="Messages\Requests\PoolsListRequest.cs" />
     <Compile Include="Messages\Requests\ReConnectRequest.cs" />
@@ -97,6 +103,8 @@
     <Compile Include="Permissions.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="UserArsenium.cs" />
+    <Compile Include="UserProm.cs" />
+    <Compile Include="UserRozetka.cs" />
     <Compile Include="UserViber.cs" />
     <Compile Include="Messages\Message.cs" />
     <Compile Include="Messages\Request.cs" />
@@ -117,6 +125,11 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\PromAPI\PromAPI.csproj">
+      <Project>{8d03ca03-c8e4-4cb9-a103-762ba99051ee}</Project>
+      <Name>PromAPI</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

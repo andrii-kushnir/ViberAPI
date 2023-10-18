@@ -82,6 +82,10 @@ namespace Models.Messages
         PoolsListResponse = 141,
 
         UserDetailsBuhnetRequest = 150,
-        UserDetailsBuhnetResponse = 151
+        UserDetailsBuhnetResponse = 151,
+
+        NewMessageRozetkaRequest = 160,
+
+        NewMessagePromRequest = 170
     }
 }

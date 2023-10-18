@@ -31,6 +31,8 @@ namespace Models
         Unknown = 0,
         Asterium = 1,
         Viber = 2,
-        Telegram = 3
+        Telegram = 3,
+        Rozetka = 4,
+        Prom = 5
     }
 }

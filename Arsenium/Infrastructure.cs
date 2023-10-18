@@ -37,6 +37,66 @@ namespace Arsenium
                     return null;
                 }
         }
+
+        public static void SetRoundedShape(Control control)
+        {
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            float h2 = control.Height / 2f;
+            if (control.Height <= 20)
+            {
+                path.AddLine(h2, 0, control.Width - h2, 0);
+                path.AddArc(control.Width - control.Height, 0, control.Height, control.Height, 270, 180);
+                path.AddLine(control.Width - h2, control.Height, h2, control.Height);
+                path.AddArc(0, 0, control.Height, control.Height, 90, 180);
+            }
+            else
+            {
+                path.AddArc(0, 0, 10, 10, 180, 90);
+                path.AddLine(5, 0, control.Width - 5, 0);
+                path.AddArc(control.Width - 10, 0, 10, 10, 270, 90);
+                path.AddLine(control.Width, 5, control.Width, control.Height - 5);
+                path.AddArc(control.Width - 10, control.Height - 10, 10, 10, 0, 90);
+                path.AddLine(control.Width - 5, control.Height, 5, control.Height);
+                path.AddArc(0, control.Height - 10, 10, 10, 90, 90);
+                path.AddLine(0, control.Height - 5, 0, 5);
+            }
+            control.Region = new Region(path);
+        }
+
+        private static string[] MonthNames = { "січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня" };
+        private static int TimeHeight = 10;
+
+        public static void ShowDateLabel(Panel parent, DateTime date, ref int posOnPanel)
+        {
+            var label = new Label()
+            {
+                Parent = parent,
+                Text = $"  {date.Day} {MonthNames[date.Month - 1]} {date.Year}  ",
+                Font = new Font("Times New Roman", 9.75F, FontStyle.Italic, GraphicsUnit.Point, ((byte)(204))),
+                ForeColor = Color.Black,
+                BackColor = Color.Plum,
+                AutoSize = true
+            };
+            label.Location = new Point((parent.Width - label.Width) / 2, posOnPanel - parent.VerticalScroll.Value);
+            SetRoundedShape(label);
+            posOnPanel += label.Height + 1;
+        }
+
+        public static Control ShowMessageTime(Panel parent, Control control, DateTime date)
+        {
+            var labelTime = new Label()
+            {
+                Parent = parent,
+                Text = date.ToString("HH:mm"),
+                Font = new Font("Times New Roman", 6.75F, FontStyle.Italic, GraphicsUnit.Point, ((byte)(204))),
+                ForeColor = Color.Black,
+                BackColor = Color.White,
+                Location = new Point(control.Right + 1, control.Bottom - TimeHeight),
+                AutoSize = true
+            };
+            SetRoundedShape(labelTime);
+            return labelTime;
+        }
     }
 
     public static class InvokeHelper
