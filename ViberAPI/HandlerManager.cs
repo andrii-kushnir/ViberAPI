@@ -49,8 +49,8 @@ namespace ViberAPI
         private const int intervalClear = 60 * 60 * 1000; // Кількість хвилин неактивності
         private const int intervalChek = 60 * 1000; // Інтервал провірки неактивності
         private const int intervalLoginRozetka = 23 * 60 * 60 * 1000; // Інтервал перелогування Розетка(час життя токену)
-        private const int intervalChekRozetka = 3 * 60 * 1000; // Інтервал зачитки повідомлень Розетка
-        private const int intervalChekProm = 3 * 60 * 1000; // Інтервал зачитки повідомлень Prom
+        private const int intervalChekRozetka = 2 * 60 * 1000; // Інтервал зачитки повідомлень Розетка
+        private const int intervalChekProm = 2 * 60 * 1000; // Інтервал зачитки повідомлень Prom
 
         public HandlerManager()
         {
@@ -294,6 +294,60 @@ namespace ViberAPI
                         else
                         {
                             e.Session.Send(new PoolsListResponse(message, "У вас немає прав на цю дію."));
+                        }
+                    }
+                    break;
+                case MessageTypes.MessageToRozetkaRequest:
+                    {
+                        var message = JsonConvert.DeserializeObject<MessageToRozetkaRequest>(e.MessageJSON);
+                        var userRozetka = UserManager.Current.FindUserRozetka(message.User.Id);
+                        if (userRozetka != null)
+                        {
+                            var oper = UserManager.Current.FindUserArsenium(e.Session.SessionID);
+                            Logger.Info($"MessageToRozetka. From: {oper.Name}, To: {userRozetka.Name}, Text: {message.Text}");
+                            _rozetkaApi.SetMessagesAnswer(userRozetka.chat_id, message.Text, userRozetka.user_id);
+                        }
+                    }
+                    break;
+                case MessageTypes.MessageToPromRequest:
+                    {
+                        var message = JsonConvert.DeserializeObject<MessageToPromRequest>(e.MessageJSON);
+                        var userProm = UserManager.Current.FindUserProm(message.User.Id);
+                        if (userProm != null)
+                        {
+                            var oper = UserManager.Current.FindUserArsenium(e.Session.SessionID);
+                            Logger.Info($"MessageToProm. From: {oper.Name}, To: {userProm.Name}, Text: {message.Text}");
+                            //if (userProm.isContext)
+                            //    _promApi.SendMessage(userProm.room_ident, null, message.Text, out var error);
+                            //else
+                            _promApi.SendMessage(userProm.room_ident, userProm.user_ident, message.Text, out var error);
+                        }
+                    }
+                    break;
+                case MessageTypes.ReadHotRequest:
+                    {
+                        var message = JsonConvert.DeserializeObject<ReadHotRequest>(e.MessageJSON);
+                        var user = UserManager.Current.FindUser(message.User.Id);
+                        var oper = UserManager.Current.FindUserArsenium(e.Session.SessionID);
+                        user.operatoId = oper.Id;
+                        user.operatoName = oper.Name;
+                        await UserManager.Current.SendToAllOperatorsWithoutIAsync(new ClientBusyRequest(user), oper);
+                        switch (user.UserType)
+                        {
+                            case UserTypes.Rozetka:
+                                var userRozetka = user as UserRozetka;
+                                _rozetkaApi.OpenChat(userRozetka.chat_id);
+                                break;
+                            case UserTypes.Prom:
+                                var userProm = user as UserProm;
+                                foreach (var msg in userProm.messages.Where(m => m.status == "new").ToList())
+                                {
+                                    if (_promApi.MarkMessageRead(msg.id, msg.room_id, out string error))
+                                        msg.status = "read";
+                                    if (!String.IsNullOrEmpty(error))
+                                        Logger.Error("Пром MarkMessageRead: " + error);
+                                }
+                                break;
                         }
                     }
                     break;
@@ -719,7 +773,7 @@ namespace ViberAPI
                     allchat.AddRange(chats);
                 }
             }
-            if (count.content.itemsChatUnread != 0)
+            if (count.content.itemsChatUnread != 0 || count.content.sellerChatUnread != 0)
             {
                 var chats = ApiManager.Current.GetMessagesOrder("items")?.content.chats;
                 if (chats != null)
@@ -729,14 +783,29 @@ namespace ViberAPI
             }
             foreach (var chat in allchat)
             {
+                foreach(var message in chat.messages)
+                {
+                    if (message.read == null)
+                        Logger.Info($"MessageFromRozetka. Client: {chat.user.contact_fio}, Чат: {chat.id}, Text: {message.body}");
+                }
                 var user = new UserRozetka()
                 {
                     UserType = UserTypes.Rozetka,
                     Id = Guid.NewGuid(),
                     Name = chat.user.contact_fio,
+                    chat_id = chat.id,
                     user_id = chat.user.id
                 };
-                await UserManager.Current.SendToAllOperatorsAsync(new NewMessageRozetkaRequest(user, chat));
+                user = UserManager.Current.AddOrFindUserRozetka(user);
+                if (user.operatoId == Guid.Empty)
+                {
+                    await UserManager.Current.SendToAllOperatorsAsync(new NewMessageRozetkaRequest(user, chat));
+                }
+                else
+                {
+                    var oper = UserManager.Current.FindUserArsenium(user.operatoId);
+                    await UserManager.Current.SendToAllOperatorsAsync(new NewMessageRozetkaRequest(user, chat));
+                }
             }
         }
 
@@ -745,33 +814,58 @@ namespace ViberAPI
             if (!UserManager.Current.IsOnlineOperator()) return;
             var messages = _promApi.GetChatMessages(null, out string error);
             if (!String.IsNullOrEmpty(error))
+            {
                 Logger.Error("Пром GetChatMessages(null): " + error);
+                if (error == "Timeout error on handling request")
+                {
+                    messages = _promApi.GetChatMessages(null, out error);
+                    if (!String.IsNullOrEmpty(error))
+                    {
+                        Logger.Error("Пром GetChatMessages(null повторно): " + error);
+                        return;
+                    }
+                }
+            }
             if (messages.Count == 0) return;
-            AddMessageProm(messages);
+            //AddMessageProm(messages);
+            messages.RemoveAll(m => m.date_sent < DateTime.Now.AddDays(-3));
+            if (messages.Count == 0) return;
             var rooms = messages.GroupBy(m => m.room_ident).Select(g => g.First().room_ident).ToList();
             foreach (var room in rooms)
             {
-                var messagesUser = messagesProm.Where(m => m.room_ident == room).ToList();
-                var context = messagesUser.FirstOrDefault(m => m.type == "context");
-                if (context == null)
+                //var messagesUser = messagesProm.Where(m => m.room_ident == room).ToList();
+                var messagesUser = _promApi.GetChatMessages(room, out error);
+                if (!String.IsNullOrEmpty(error))
+                    Logger.Error("Пром GetChatMessages(room): " + error);
+                if (messagesUser.Count == 0) break;
+                //AddMessageProm(messagesUser);
+                foreach (var message in messagesUser)
                 {
-                    messagesUser = _promApi.GetChatMessages(room, out error);
-                    if (!String.IsNullOrEmpty(error))
-                        Logger.Error("Пром GetChatMessages(room): " + error);
-                    if (messagesUser.Count == 0) break;
-                    AddMessageProm(messagesUser);
+                    if (message.status == "new" && !message.is_sender)
+                        Logger.Info($"MessageFromProm. Чат: {room}, Text: {message.body}");
                 }
-                messagesUser = messagesUser.OrderBy(m => m.date_sent).ToList();
-                var message = messagesUser.FirstOrDefault(m => (!m.is_sender)) ?? messagesUser[messagesUser.Count - 1];
+                var context = messagesUser.FirstOrDefault(m => m.type == "context" && !m.is_sender && m.context_item_type != "file") ?? messagesUser.FirstOrDefault(m => (!m.is_sender));
                 var user = new UserProm()
                 {
                     UserType = UserTypes.Prom,
                     Id = Guid.NewGuid(),
-                    Name = message.user_name,
-                    user_ident = message.user_ident,
-                    user_phone = message.user_phone
+                    Name = context?.user_name ?? "Невідомо",
+                    room_ident = room,
+                    room_id = context?.room_id ?? messagesUser[0].room_id,
+                    user_ident = context?.user_ident,
+                    user_phone = context?.user_phone ?? "Невідомий",
+                    messages = messagesUser
                 };
-                await UserManager.Current.SendToAllOperatorsAsync(new NewMessagePromRequest(user, messagesUser));
+                user = UserManager.Current.AddOrFindUserProm(user);
+                if (user.operatoId == Guid.Empty)
+                {
+                    await UserManager.Current.SendToAllOperatorsAsync(new NewMessagePromRequest(user));
+                }
+                else
+                {
+                    var oper = UserManager.Current.FindUserArsenium(user.operatoId);
+                    await UserManager.Current.SendToOperatorsAsync(oper, new NewMessagePromRequest(user));
+                }
             }
         }
 
@@ -779,7 +873,7 @@ namespace ViberAPI
         {
             foreach (var message in messages)
             {
-                if (messagesProm.Any(m => m.id == message.id))
+                if (messagesProm.All(m => m.id != message.id))
                     messagesProm.Add(message);
             }
         }

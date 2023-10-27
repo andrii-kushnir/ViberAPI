@@ -57,7 +57,7 @@ namespace Arsenium
             this.treeMain.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.treeMain.Location = new System.Drawing.Point(2, 27);
             this.treeMain.Name = "treeMain";
-            this.treeMain.Size = new System.Drawing.Size(290, 873);
+            this.treeMain.Size = new System.Drawing.Size(290, 793);
             this.treeMain.TabIndex = 0;
             this.treeMain.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeMain_NodeMouseDoubleClick);
             // 
@@ -68,7 +68,7 @@ namespace Arsenium
             this.btAway.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.btAway.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btAway.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btAway.Location = new System.Drawing.Point(88, 907);
+            this.btAway.Location = new System.Drawing.Point(88, 827);
             this.btAway.Name = "btAway";
             this.btAway.Size = new System.Drawing.Size(119, 28);
             this.btAway.TabIndex = 6;
@@ -176,7 +176,7 @@ namespace Arsenium
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(295, 941);
+            this.ClientSize = new System.Drawing.Size(295, 861);
             this.Controls.Add(this.btAway);
             this.Controls.Add(this.treeMain);
             this.Controls.Add(this.mMainMenu);

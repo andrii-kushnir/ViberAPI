@@ -49,24 +49,24 @@ namespace PromAPI
             {
                 var resultError = response.ConvertJson<ErrorMessage>(ref error);
                 if (resultError != null && resultError.status == "error")
-                    error += " " + resultError.message;
+                    error = resultError.message;
             }
             return result;
         }
 
-        public int SendMessage(int userId, string text, out string error)
+        public int SendMessage(string room_ident, string user_ident, string text, out string error)
         {
             int result = 0;
-            var keysBody = new Dictionary<string, string>
-            {
-                { "user_id", userId.ToString() },
-                { "body", text }
-            };
+            string keysBody;
+            if (user_ident == null)
+                keysBody = "{\"room_ident\":\"" + room_ident + "\", \"body\":\"" + text + "\"}";
+            else
+                keysBody = "{\"room_ident\":\"" + room_ident + "\", \"user_id\":" + user_ident + ", \"body\":\"" + text + "\"}";
 
             string response = null;
             try
             {
-                response = RequestData.FormDataRequest(apiPath + "chat/send_message", _token, keysBody, null, null, null, out error);
+                response = RequestData.SendPost(apiPath + "chat/send_message", _token, keysBody, out error);
             }
             catch (Exception ex)
             {
@@ -89,16 +89,12 @@ namespace PromAPI
 
         public bool MarkMessageRead(int messageId, string room_id, out string error)
         {
-            var keysBody = new Dictionary<string, string>
-            {
-                { "message_id", messageId.ToString() },
-                { "room_id", room_id }
-            };
+            var keysBody = "{\"message_id\":" + messageId + ", \"room_id\":\"" + room_id + "\"}";
 
             string response = null;
             try
             {
-                response = RequestData.FormDataRequest(apiPath + "chat/mark_message_read", _token, keysBody, null, null, null, out error);
+                response = RequestData.SendPost(apiPath + "chat/mark_message_read", _token, keysBody, out error);
             }
             catch (Exception ex)
             {

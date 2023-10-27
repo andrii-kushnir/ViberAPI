@@ -17,8 +17,6 @@ namespace Models
         public List<ChatMessage> messageList { get; set; }
         public bool subscribed { get; set; }
         public InviteType inviteType { get; set; }
-        public Guid operatoId { get; set; }
-        public string operatoName { get; set; }
         public DateTime dateCreate { get; set; }
         public string buhnetName { get; set; }
         public int codep { get; set; }

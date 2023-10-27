@@ -185,13 +185,13 @@ namespace Arsenium
             var node = e.Node;
             var client = (Client)node.Tag;
             if (client == null) return;
+            ClientManager.SetNodeUnblink(client);
             switch (client.Type)
             {
                 case UserTypes.Viber:
-                    ClientManager.SetNodeUnblink(client);
                     if (client.DetailsInfo == null)
                     {
-                        Program.Session.Send(new UserDetailsRequest(new User(client.Id, null, null, UserTypes.Viber)));
+                        Program.Session.Send(new UserDetailsRequest(new User(client.Id, UserTypes.Viber)));
                         var i = 0;
                         while (client.DetailsInfo == null && i <= 3000)
                         {
@@ -216,7 +216,6 @@ namespace Arsenium
                     }
                     break;
                 case UserTypes.Rozetka:
-                    ClientManager.SetNodeUnblink(client);
                     if (client.RozetkaWindow == null || client.RozetkaWindow.IsDisposed)
                     {
                         client.RozetkaWindow = new ClientRozetkaWin(client);
@@ -228,7 +227,6 @@ namespace Arsenium
                     }
                     break;
                 case UserTypes.Prom:
-                    ClientManager.SetNodeUnblink(client);
                     if (client.PromWindow == null || client.PromWindow.IsDisposed)
                     {
                         client.PromWindow = new ClientPromWin(client);

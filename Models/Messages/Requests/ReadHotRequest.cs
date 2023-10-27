@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Models.Messages.Requests
 {
-    public class ClientBusyRequest : Message
+    public class ReadHotRequest : Request
     {
         public User User { get; set; }
-        public ClientBusyRequest()
+        public ReadHotRequest()
         {
-            MessageType = MessageTypes.ClientBusyRequest;
+            MessageType = MessageTypes.ReadHotRequest;
         }
 
-        public ClientBusyRequest(User user) : this()
+        public ReadHotRequest(User user) : this()
         {
             User = user;
         }

@@ -343,7 +343,7 @@ namespace Arsenium
 
                 pTalk.ScrollControlIntoView(labelIcon);
                 _client.DetailsInfo.MessageList.Add(message);
-                var request = new FileToViberRequest(message, new User(_client.Id));
+                var request = new FileToViberRequest(message, new User(_client.Id, UserTypes.Viber));
                 _checkList.Add(message.MessageId, labelIcon);
                 Program.Session.Send(request);
 
@@ -372,7 +372,7 @@ namespace Arsenium
             var labelIcon = ShowMessageOwn(message);
             pTalk.ScrollControlIntoView(labelIcon);
             _client.DetailsInfo.MessageList.Add(message);
-            var request = new MessageToViberRequest(message, new User(_client.Id));
+            var request = new MessageToViberRequest(message, new User(_client.Id, UserTypes.Viber));
             _checkList.Add(message.MessageId, labelIcon);
             Program.Session.Send(request);
         }
@@ -714,7 +714,7 @@ namespace Arsenium
 
         private void btDetailsInfo_Click(object sender, EventArgs e)
         {
-            Program.Session.Send(new UserDetailsRequest(new User(_client.Id, null, null, UserTypes.Viber)));
+            Program.Session.Send(new UserDetailsRequest(new User(_client.Id, UserTypes.Viber)));
             Close();
         }
 
@@ -725,7 +725,7 @@ namespace Arsenium
 
         private void btFix1_Click(object sender, EventArgs e)
         {
-            var request = new FixMessageRequest("MainMenu", new User(_client.Id));
+            var request = new FixMessageRequest("MainMenu", new User(_client.Id, UserTypes.Viber));
             Program.Session.Send(request);
         }
 
@@ -736,7 +736,7 @@ namespace Arsenium
 
         private void btFix3_Click(object sender, EventArgs e)
         {
-            var request = new FixMessageRequest("EndСonversation", new User(_client.Id));
+            var request = new FixMessageRequest("EndСonversation", new User(_client.Id, UserTypes.Viber));
             Program.Session.Send(request);
         }
 
@@ -747,7 +747,7 @@ namespace Arsenium
 
             if (_client.WaitOperator)
             {
-                var response = new FindOperatorResponse(new User(_client.Id));
+                var response = new FindOperatorResponse(new User(_client.Id, UserTypes.Viber));
                 Program.Session.Send(response);
                 _client.WaitOperator = false;
             }
@@ -784,7 +784,7 @@ namespace Arsenium
                             break;
                     }
                     lbInvite.Location = new Point(lbInvite.Location.X - lbInvite.Width + tempWidth, lbInvite.Location.Y);
-                    var request = new ChangeTypeRequest(new User(_client.Id), clientType);
+                    var request = new ChangeTypeRequest(new User(_client.Id, UserTypes.Viber), clientType);
                     Program.Session.Send(request);
                 }
                 else
@@ -796,7 +796,7 @@ namespace Arsenium
         {
             lbOperator.Text = String.IsNullOrWhiteSpace(ClientManager.Myself.Name) ? $"Оператор: Немає прив'язки" : $"Оператор: {ClientManager.Myself.Name}";
             _client.DetailsInfo.OperatorName = ClientManager.Myself.Name;
-            var request = new ChangeOperatorRequest(new User(_client.Id));
+            var request = new ChangeOperatorRequest(new User(_client.Id, UserTypes.Viber));
             Program.Session.Send(request);
         }
 
@@ -844,7 +844,7 @@ namespace Arsenium
                         }
                         pTalk.ScrollControlIntoView(labelIcon);
                         _client.DetailsInfo.MessageList.Add(message);
-                        var request = new FileToViberRequest(message, new User(_client.Id));
+                        var request = new FileToViberRequest(message, new User(_client.Id, UserTypes.Viber));
                         _checkList.Add(message.MessageId, labelIcon);
                         Program.Session.Send(request);
                     }
@@ -873,7 +873,7 @@ namespace Arsenium
             var labelIcon = ShowMessageImageOwn(message, false);
             pTalk.ScrollControlIntoView(labelIcon);
             _client.DetailsInfo.MessageList.Add(message);
-            var request = new ImageToViberRequest(message, new User(_client.Id));
+            var request = new ImageToViberRequest(message, new User(_client.Id, UserTypes.Viber));
             _checkList.Add(message.MessageId, labelIcon);
             Program.Session.Send(request);
             tbSendMessage.Text = "";

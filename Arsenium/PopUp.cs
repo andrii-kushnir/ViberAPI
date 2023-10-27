@@ -62,7 +62,7 @@ namespace Arsenium
             ClientManager.SetNodeUnblink(_client);
             if (_client.DetailsInfo == null)
             {
-                Program.Session.Send(new UserDetailsRequest(new User(_client.Id, null, null, UserTypes.Viber)));
+                Program.Session.Send(new UserDetailsRequest(new User(_client.Id, UserTypes.Viber)));
                 var i = 0;
                 while (_client.DetailsInfo == null && i <= 3000)
                 {

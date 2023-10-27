@@ -38,6 +38,12 @@ namespace ViberAPI
             UserList.Add(newZeroUser);
         }
 
+        public User FindUser(Guid guid)
+        {
+            var user = UserList.FirstOrDefault(us =>us.Id == guid);
+            return user;
+        }
+
         public UserViber AddOrFindUserViber(ViberClient viberClient, InviteType inviteType, string phone = null)
         {
             var userViber = FindUserViber(viberClient.id);
@@ -74,6 +80,45 @@ namespace ViberAPI
                 UserList.Add(userViber);
             }
             return userViber;
+        }
+
+        public UserRozetka AddOrFindUserRozetka(UserRozetka userRozetka)
+        {
+            var user = UserList.Where(us => us.UserType == UserTypes.Rozetka).Select(us => us as UserRozetka).FirstOrDefault(us => us.chat_id == userRozetka.chat_id);
+            if (user != null)
+                return user;
+            else
+            {
+                UserList.Add(userRozetka);
+                return userRozetka;
+            }
+        }
+
+        public UserRozetka FindUserRozetka(Guid guid)
+        {
+            var user = UserList.FirstOrDefault(us => us.UserType == UserTypes.Rozetka && us.Id == guid) as UserRozetka;
+            return user;
+        }
+
+        public UserProm AddOrFindUserProm(UserProm userProm)
+        {
+            var user = UserList.Where(us => us.UserType == UserTypes.Prom).Select(us => us as UserProm).FirstOrDefault(us => us.room_ident == userProm.room_ident);
+            if (user != null)
+            {
+                user.messages = userProm.messages;
+                return user;
+            }
+            else
+            {
+                UserList.Add(userProm);
+                return userProm;
+            }
+        }
+
+        public UserProm FindUserProm(Guid guid)
+        {
+            var user = UserList.FirstOrDefault(us => us.UserType == UserTypes.Prom && us.Id == guid) as UserProm;
+            return user;
         }
 
         public UserViber FindAndBdUserViber(Guid userGuid)
@@ -260,6 +305,11 @@ namespace ViberAPI
         public async Task SendToOperatorsAsync(UserViber user, Message message)
         {
             var oper = GetAttachedOperator(user);
+            await SendToOperatorsAsync(oper, message);
+        }
+
+        public async Task SendToOperatorsAsync(UserArsenium oper, Message message)
+        {
             if (oper == null || !oper.Online)
             {
                 await SendToAllOperatorsAsync(message);

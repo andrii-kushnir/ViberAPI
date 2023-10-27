@@ -51,6 +51,7 @@ namespace ViberAPI.Controllers
         {
             //ssh -R 80:localhost:13666 nokey@localhost.run
             //ngrok http 13666
+            //https://d743-5-58-12-152.ngrok.io/main/d743-5-58-12-152.ngrok.io
             if (ConfigurationManager.AppSettings.Get("ipAddress") == "192.168.4.147")
             {
                 var httpClient = new HttpClient();
@@ -190,6 +191,7 @@ namespace ViberAPI.Controllers
                                         await HandlerManager.Current.AddAndSendFileAsync(userViber, file_url, file_name, ChatMessageTypes.FileFromViber);
                                         break;
                                 }
+                                Logger.Info($"File - {file_name}, ChatId - {user.id}");
                                 break;
                             }
                         case "sticker":

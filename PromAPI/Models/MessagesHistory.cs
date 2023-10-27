@@ -11,7 +11,7 @@ namespace PromAPI.Models
     {
         public string status { get; set; }
         public DataMessagesHistory data { get; set; }
-    }
+}
 
     public class DataMessagesHistory
     {

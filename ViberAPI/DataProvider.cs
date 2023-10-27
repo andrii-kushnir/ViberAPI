@@ -119,6 +119,55 @@ namespace ViberAPI
             }
         }
 
+        public List<User> GetWorkersSQL()
+        {
+            var result = new List<User>();
+            var query = $"SELECT * FROM [dbo].[ArseniumWorker]";
+            using (var connection = new SqlConnection(connectionSql100))
+            {
+                var command = new SqlCommand(query, connection);
+                SqlDataReader reader = null;
+                try
+                {
+                    connection.Open();
+                    reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        var oper = new UserArsenium
+                        {
+                            Name = Convert.ToString(reader["name"]),
+                            Login = Convert.ToString(reader["login"]),
+                            Password = Convert.ToString(reader["password"]),
+                            UserType = UserTypes.Asterium,
+                            Avatar = Convert.ToString(reader["icon"]),
+                            Online = false,
+                            Active = Convert.ToBoolean(reader["active"]),
+                            Codep = reader["codep"] == System.DBNull.Value ? 0 : Convert.ToInt32(reader["codep"])
+                        };
+
+                        var Id = Convert.ToString(reader["guid"]);
+                        oper.Id = String.IsNullOrWhiteSpace(Id) ? Guid.Empty : new Guid(Id);
+
+                        if (reader["permission"] != System.DBNull.Value)
+                            oper.SetPermission(Convert.ToString(reader["permission"]));
+
+                        result.Add(oper);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"DataProvider.GetOperatorsSQL(): {ex.Message}");
+                }
+                finally
+                {
+                    reader?.Close();
+                }
+
+                return result;
+            }
+        }
+
         public void ClientSubscribedSQL(ViberClient user, string phone)
         {
             var name = Regex.Replace(user.name, @"'", @"''");
@@ -317,9 +366,9 @@ namespace ViberAPI
         public void SaveViberMessagesSQL(ChatMessage message, UserViber userViber = null)
         {
             var text = Regex.Replace(message.Text, @"'", @"''");
-            var name = Regex.Replace(userViber.Name, @"'", @"''");
             var query = $"INSERT INTO [dbo].[ArseniumMessages] ([token], [ownerId], [receiverId], [type], [text], [dateCreate], [dateDelivered], [dateSeen]) SELECT 0, V.id, NULL, {(int)message.ChatMessageType}, '{text}','{message.DateCreate:yyyy-MM-dd HH:mm:ss}', NULL, NULL FROM [dbo].[ArseniumViberClients] V WHERE V.guid = '{message.Owner}'";
             Enqueue100(query);
+            var name = userViber == null ? "" : Regex.Replace(userViber.Name, @"'", @"''");
             switch (message.ChatMessageType)
             {
                 case ChatMessageTypes.MarkOperator:

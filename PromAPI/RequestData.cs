@@ -57,6 +57,31 @@ namespace PromAPI
             return result;
         }
 
+        public static string SendPost(string url, string token, string json, out string error)
+        {
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "POST";
+            request.PreAuthenticate = true;
+            if (token != null) request.Headers.Add("Authorization", $"Bearer {token}");
+            request.ContentType = "application/json";
+            using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                streamWriter.Write(json);
+
+            HttpWebResponse response;
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+                return null;
+            }
+            var result = ParseResponse(response, out error);
+            response.Close();
+            return result;
+        }
+
         public static string FormDataRequest(string url, string token, Dictionary<string, string> postBody, FileInfo fileToUpload, string fileMimeType, string fileFormKey, out string error)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);

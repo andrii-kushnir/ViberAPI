@@ -74,6 +74,8 @@
     <Compile Include="Messages\Requests\MessageDeliveredRequest.cs" />
     <Compile Include="Messages\Requests\MessageFromViberRequest.cs" />
     <Compile Include="Messages\Requests\MessageSeenRequest.cs" />
+    <Compile Include="Messages\Requests\MessageToPromRequest.cs" />
+    <Compile Include="Messages\Requests\MessageToRozetkaRequest.cs" />
     <Compile Include="Messages\Requests\MessageToViberRequest.cs" />
     <Compile Include="Messages\Requests\MessageViberPhone.cs" />
     <Compile Include="Messages\Requests\NewConversationRequest.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="Messages\Requests\NewMessageRozetkaRequest.cs" />
     <Compile Include="Messages\Requests\PingRequest.cs" />
     <Compile Include="Messages\Requests\PoolsListRequest.cs" />
+    <Compile Include="Messages\Requests\ReadHotRequest.cs" />
     <Compile Include="Messages\Requests\ReConnectRequest.cs" />
     <Compile Include="Messages\Requests\ReturnAwayRequest.cs" />
     <Compile Include="Messages\Requests\FindOperatorRequest.cs" />

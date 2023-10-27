@@ -9,16 +9,14 @@ namespace Models.Messages.Requests
     public class NewMessagePromRequest : Request
     {
         public UserProm UserProm { get; set; }
-        public List<PromAPI.ModelsProm.Message> Messages { get; set; }
         public NewMessagePromRequest()
         {
             MessageType = MessageTypes.NewMessagePromRequest;
         }
 
-        public NewMessagePromRequest(UserProm userProm, List<PromAPI.ModelsProm.Message> messages) : this()
+        public NewMessagePromRequest(UserProm userProm) : this()
         {
             UserProm = userProm;
-            Messages = messages;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Models;
+using Models.Messages.Requests;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -55,18 +57,33 @@ namespace Arsenium
             MaxSize = new Size(_pTalk.Width - TimeWidth - ScrollWidth - 20, 0);
             _client.ChatRozetka.messages = _client.ChatRozetka.messages.OrderBy(m => m.created).ToList();
             ShowMessages(_client);
+            ActiveControl = _tbSendMessage;
+        }
+
+        private void ClientRozetkaWin_Activated(object sender, EventArgs e)
+        {
+            if (_client.PopUpRozetkaWindow != null && !_client.PopUpRozetkaWindow.IsDisposed)
+                _client.PopUpRozetkaWindow.Close();
+
+            if (_client.WaitOperator)
+            {
+                var request = new ReadHotRequest(new User(_client.Id, UserTypes.Rozetka));
+                Program.Session.Send(request);
+                _client.WaitOperator = false;
+            }
         }
 
         private void ShowMessages(Client client)
         {
             var msgCount = client.ChatRozetka.messages.Count;
-            var dateMessage = "";
+            var dateMessage = DateTime.MinValue.ToString("yyyy.MM.dd");
             foreach (var message in client.ChatRozetka.messages)
             {
-                if (dateMessage != message.created)
+                var dateCreated = DateTime.Parse(message.created);
+                if (dateMessage != dateCreated.ToString("yyyy.MM.dd"))
                 {
-                    Infrastructure.ShowDateLabel(_pTalk, DateTime.Parse(message.created), ref _posOnPanel);
-                    dateMessage = message.created;
+                    Infrastructure.ShowDateLabel(_pTalk, dateCreated, ref _posOnPanel);
+                    dateMessage = dateCreated.ToString("yyyy.MM.dd");
                 }
 
                 switch (message.sender)
@@ -91,6 +108,7 @@ namespace Arsenium
         public void RefreshMessages(RozetkaAPI.ModelsRozetka.Chat chat)
         {
             _pTalk.Controls.Clear();
+            _posOnPanel = 0;
             _client.ChatRozetka.messages = chat.messages.OrderBy(m => m.created).ToList();
             ShowMessages(_client);
         }
@@ -161,16 +179,15 @@ namespace Arsenium
         {
             var message = new ChatMessage()
             {
-                chat_id = _client.ChatRozetka.id,
                 body = text,
-                sender = _client.ChatRozetka.user_id
+                created = DateTime.Now.ToString(),
+                sender = 2
             };
             var labelIcon = ShowMessageOwn(message);
             _pTalk.ScrollControlIntoView(labelIcon);
             _client.ChatRozetka.messages.Add(message);
-#warning Розетка: оператор написав клієнту!!!
-            //var request = new MessageToViberRequest(message, new User(_client.Id));
-            //Program.Session.Send(request);
+            var request = new MessageToRozetkaRequest(new User(_client.Id, UserTypes.Rozetka), text);
+            Program.Session.Send(request);
         }
 
         private void _bSend_Click(object sender, EventArgs e)
@@ -179,6 +196,15 @@ namespace Arsenium
             {
                 SendMessage();
                 ActiveControl = _tbSendMessage;
+            }
+        }
+
+        private void _tbSendMessage_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '\r' && (!string.IsNullOrWhiteSpace(_tbSendMessage.Text)))
+            {
+                SendMessage();
+                e.Handled = true;
             }
         }
     }

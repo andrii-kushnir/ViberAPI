@@ -85,7 +85,11 @@ namespace Models.Messages
         UserDetailsBuhnetResponse = 151,
 
         NewMessageRozetkaRequest = 160,
+        MessageToRozetkaRequest = 161,
 
-        NewMessagePromRequest = 170
+        NewMessagePromRequest = 170,
+        MessageToPromRequest = 171,
+
+        ReadHotRequest = 180
     }
 }
