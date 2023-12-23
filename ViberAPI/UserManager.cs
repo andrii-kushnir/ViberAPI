@@ -18,6 +18,7 @@ namespace ViberAPI
         private readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly List<User> UserList;
         private readonly List<UserViber> UserOffline;
+        private readonly List<RouteSheet> RouteSheets = new List<RouteSheet>();
         public static object lockUserOffline = new object();
 
         public UserManager()
@@ -352,6 +353,23 @@ namespace ViberAPI
             var guids = DataProvider.Current.GetLastClientsSQL(oper.Id, days, all);
             var result = guids.Select(g => FindAndBdUserViber(g)).ToList();
             return result;
+        }
+
+        public void CreateRoute(UserViber user)
+        {
+            var route = new RouteSheet(user.idViber);
+            RouteSheets.Add(route);
+        }
+
+        public RouteSheet GetRoute(UserViber user)
+        {
+            var route = RouteSheets.FirstOrDefault(r => r.Id == user.idViber);
+            return route;
+        }
+
+        public void DeleteRoute(UserViber user)
+        {
+            var route = RouteSheets.RemoveAll(r => r.Id == user.idViber);
         }
     }
 }

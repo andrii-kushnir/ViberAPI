@@ -1,4 +1,5 @@
-﻿using PromAPI.Models;
+﻿using Newtonsoft.Json;
+using PromAPI.Models;
 using PromAPI.ModelsProm;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace PromAPI
 
         public List<Message> GetChatMessages(string room_ident, out string error)
         {
+#warning Бажано переробити цей метод на асинхрониий, тому що Пром інколи довго не відповідає і ложить весь сервер.
             List<Message> result = new List<Message>();
             string response = null;
 
@@ -58,10 +60,19 @@ namespace PromAPI
         {
             int result = 0;
             string keysBody;
-            if (user_ident == null)
-                keysBody = "{\"room_ident\":\"" + room_ident + "\", \"body\":\"" + text + "\"}";
-            else
-                keysBody = "{\"room_ident\":\"" + room_ident + "\", \"user_id\":" + user_ident + ", \"body\":\"" + text + "\"}";
+
+            var body = new SendOurMessage()
+            {
+                room_ident = room_ident,
+                user_id = user_ident,
+                body = text
+            };
+            keysBody = JsonConvert.SerializeObject(body, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+
+            //if (user_ident == null)
+            //    keysBody = "{\"room_ident\":\"" + room_ident + "\", \"body\":\"" + text + "\"}";
+            //else
+            //    keysBody = "{\"room_ident\":\"" + room_ident + "\", \"user_id\":" + user_ident + ", \"body\":\"" + text + "\"}";
 
             string response = null;
             try
@@ -108,6 +119,34 @@ namespace PromAPI
             if (resultError != null && resultError.status == "error")
                 error += " " + resultError.message;
             return false;
+        }
+
+        public Product GetProduct(int id, out string error)
+        {
+            Product result = null;
+            string response = null;
+            try
+            {
+                response = RequestData.SendGet(apiPath + $"products/{id}", _token, out error);
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message + " ";
+                return result;
+            }
+
+            var resultModel = response.ConvertJson<GetProduct>(ref error);
+            if (resultModel != null)
+            {
+                result = resultModel.product;
+            }
+            else
+            {
+                var resultError = response.ConvertJson<ErrorMessage>(ref error);
+                if (resultError != null && resultError.status == "error")
+                    error += " " + resultError.message;
+            }
+            return result;
         }
     }
 }

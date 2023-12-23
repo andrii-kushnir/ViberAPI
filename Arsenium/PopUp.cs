@@ -33,17 +33,30 @@ namespace Arsenium
 
         private void PopUp_Load(object sender, EventArgs e)
         {
-            //Прозорість:
+            switch (_client.Type)
+            {
+                case UserTypes.Viber:
+                    this.BackColor = Color.FromArgb(100, 90, 170);
+                    break;
+                case UserTypes.Prom:
+                    this.BackColor = Color.FromArgb(0, 170, 220);
+                    break;
+                case UserTypes.Rozetka:
+                    this.BackColor = Color.FromArgb(0, 192, 80);
+                    break;
+            }
             this.FormBorderStyle = FormBorderStyle.None;
+
+            //Прозорість:
             this.AllowTransparency = true;
-            this.BackColor = Color.AliceBlue;//цвет фона  
-            this.TransparencyKey = Color.AliceBlue;//он же будет заменен на прозрачный цвет
+            this.TransparencyKey = Color.AliceBlue;//он же будет заменен на прозрачный цвет; AliceBlue - це колір control-а тексту 
 
             Rectangle workingArea = Screen.PrimaryScreen.WorkingArea;
             //Rectangle workingArea = Screen.AllScreens[0].WorkingArea;
             Left = workingArea.Left + workingArea.Width - Size.Width - 2;
             Top = workingArea.Top + workingArea.Height - Size.Height - 2;
 
+            _backForm.BackColor = this.BackColor;
             _backForm.Left = Left;
             _backForm.Top = Top;
             _backForm.Show();
@@ -60,7 +73,7 @@ namespace Arsenium
         private void PopUp_MouseDown(object sender, MouseEventArgs e)
         {
             ClientManager.SetNodeUnblink(_client);
-            if (_client.DetailsInfo == null)
+            if (_client.Type == UserTypes.Viber && _client.DetailsInfo == null)
             {
                 Program.Session.Send(new UserDetailsRequest(new User(_client.Id, UserTypes.Viber)));
                 var i = 0;
@@ -71,21 +84,44 @@ namespace Arsenium
                 }
             }
 
-            if (_client.ClientWindow == null || _client.ClientWindow.IsDisposed)
+            switch (_client.Type)
             {
-                if (_client.DetailsInfo == null)
-                {
-                    MessageBox.Show("Дані по контакту не можуть бути отримані.");
-                    Close();
-                }
-                else
-                {
-                    _client.ClientWindow = new ClientSessionWin(_client) { Text = $"Далог з {_client.NameShow}" };
-                    _client.ClientWindow.Show();
-                }
+                case UserTypes.Viber:
+                    if (_client.ClientWindow == null || _client.ClientWindow.IsDisposed)
+                        if (_client.DetailsInfo == null)
+                        {
+                            MessageBox.Show("Дані по контакту не можуть бути отримані.");
+                            Close();
+                        }
+                        else
+                        {
+                            _client.ClientWindow = new ClientSessionWin(_client) { Text = $"Далог з {_client.NameShow}" };
+                            _client.ClientWindow.Show();
+                        }
+                    else
+                        _client.ClientWindow.Focus();
+                    break;
+                case UserTypes.Rozetka:
+                    if (_client.RozetkaWindow == null || _client.RozetkaWindow.IsDisposed)
+                    {
+                        _client.RozetkaWindow = new ClientRozetkaWin(_client);
+                        _client.RozetkaWindow.Show();
+                    }
+                    else
+                        _client.RozetkaWindow.Focus();
+                    break;
+                case UserTypes.Prom:
+                    if (_client.PromWindow == null || _client.PromWindow.IsDisposed)
+                    {
+                        _client.PromWindow = new ClientPromWin(_client);
+                        _client.PromWindow.Show();
+                    }
+                    else
+                    {
+                        _client.PromWindow.Focus();
+                    }
+                    break;
             }
-            else
-                _client.ClientWindow.Focus();
         }
 
         //private bool Drag;

@@ -651,17 +651,15 @@ namespace Arsenium
                             ClientManager.SetNodeBlink(client);
                             client.WaitOperator = true;
 
-#warning Розетка: доробити PopUpRozetkaWindow (спливаюче вікно)
-                            //                            var lastMessage = client.ChatRozetka.messages[client.ChatRozetka.messages.Count - 1];
-                            //                            if ((client.PopUpRozetkaWindow == null || client.PopUpRozetkaWindow.IsDisposed) && (Form.ActiveForm != Program.MainWin))
-                            //                            {
-                            //                                Program.MainWin.Invoke(new Action(() =>
-                            //                                {
-                            //#warning доробити PopUpRozetkaWindow(спливаюче вікно для Розетка)
-                            //                                    //client.PopUpRozetkaWindow = new PopUp(client, message.UserViber.operatoName, message.Message.Text);
-                            //                                    //client.PopUpRozetkaWindow.Show();
-                            //                                }));
-                            //                            }
+                            var lastMessage = client.ChatRozetka.messages[client.ChatRozetka.messages.Count - 1];
+                            if ((client.PopUpRozetkaWindow == null || client.PopUpRozetkaWindow.IsDisposed) && (Form.ActiveForm != Program.MainWin))
+                            {
+                                Program.MainWin.Invoke(new Action(() =>
+                                {
+                                    client.PopUpRozetkaWindow = new PopUp(client, message.UserRozetka.operatoName, lastMessage.body);
+                                    client.PopUpRozetkaWindow.Show();
+                                }));
+                            }
                         }
                         else
                         {
@@ -701,15 +699,15 @@ namespace Arsenium
                             ClientManager.SetNodeBlink(client);
                             client.WaitOperator = true;
 
-#warning Пром: доробити PopUpPromWindow(спливаюче вікно)
-                            //if ((client.PopUpPromWindow == null || client.PopUpPromWindow.IsDisposed) && (Form.ActiveForm != Program.MainWin))
-                            //{
-                            //    Program.MainWin.Invoke(new Action(() =>
-                            //    {
-                            //        client.PopUpPromWindow = new PopUp(client, message.UserViber.operatoName, message.Message.Text);
-                            //        client.PopUpPromWindow.Show();
-                            //    }));
-                            //}
+                            var lastMessage = client.MessagesProm[client.MessagesProm.Count - 1];
+                            if ((client.PopUpPromWindow == null || client.PopUpPromWindow.IsDisposed) && (Form.ActiveForm != Program.MainWin))
+                            {
+                                Program.MainWin.Invoke(new Action(() =>
+                                {
+                                    client.PopUpPromWindow = new PopUp(client, message.UserProm.operatoName, lastMessage.body);
+                                    client.PopUpPromWindow.Show();
+                                }));
+                            }
                         }
                         else
                         {

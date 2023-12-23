@@ -742,7 +742,7 @@ namespace ViberAPI
             foreach (var click in noActivity)
             {
                 var userViber = UserManager.Current.FindUserViber(click.id);
-                if (userViber != null)
+                if (userViber != null && userViber.inviteType != InviteType.Pool && userViber.inviteType != InviteType.Worker && userViber.inviteType != InviteType.WorkerDriver)
                     await Conversation.EndClient(userViber, true);
                 click.action = "no activity";
             }
@@ -763,9 +763,9 @@ namespace ViberAPI
             if (!UserManager.Current.IsOnlineOperator()) return;
 
             var count = _rozetkaApi.GetMessagesCount();
-            if (!count.success || count.content.totalUnread == 0) return;
+            if (!count.success || (count.content.totalUnreadMessages == 0 && count.content.totalUnread == 0)) return;
             List<Chat> allchat = new List<Chat>();
-            if (count.content.ordersChatUnread != 0)
+            if (count.content.ordersChatUnread != 0 || count.content.orderMessagesUnread != 0)
             {
                 var chats = ApiManager.Current.GetMessagesOrder("orders")?.content.chats;
                 if (chats != null)
@@ -787,6 +787,14 @@ namespace ViberAPI
                 {
                     if (message.read == null)
                         Logger.Info($"MessageFromRozetka. Client: {chat.user.contact_fio}, Чат: {chat.id}, Text: {message.body}");
+                }
+                if (chat.type == RozetkaAPI.ModelsRozetka.ChatType.Item && chat.item_id != null)
+                {
+                    var item = ApiManager.Current.GetItem(chat.item_id.Value);
+                    if (Int32.TryParse(item?.article, out var codetvun))
+                        chat.item_id = codetvun;
+                    else
+                        chat.item_id = null;
                 }
                 var user = new UserRozetka()
                 {
@@ -825,8 +833,12 @@ namespace ViberAPI
                         return;
                     }
                 }
+                else
+                {
+                    return;
+                }
             }
-            if (messages.Count == 0) return;
+            if (messages == null || messages.Count == 0) return;
             //AddMessageProm(messages);
             messages.RemoveAll(m => m.date_sent < DateTime.Now.AddDays(-3));
             if (messages.Count == 0) return;
@@ -845,6 +857,16 @@ namespace ViberAPI
                         Logger.Info($"MessageFromProm. Чат: {room}, Text: {message.body}");
                 }
                 var context = messagesUser.FirstOrDefault(m => m.type == "context" && !m.is_sender && m.context_item_type != "file") ?? messagesUser.FirstOrDefault(m => (!m.is_sender));
+                if (context != null && context.context_item_type == "product" && context.context_item_id != null && context.context_item_id != 0)
+                {
+                    var product = _promApi.GetProduct(context.context_item_id.Value, out error);
+                    if (product != null)
+                    {
+                        context.body = product.name;
+                        if (Int32.TryParse(product.sku, out var codetvun))
+                            context.context_item_id = codetvun;
+                    }
+                }
                 var user = new UserProm()
                 {
                     UserType = UserTypes.Prom,

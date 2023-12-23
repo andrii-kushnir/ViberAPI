@@ -79,6 +79,7 @@ namespace Arsenium
             var dateMessage = DateTime.MinValue.ToString("yyyy.MM.dd");
             foreach (var message in client.ChatRozetka.messages)
             {
+                if (String.IsNullOrEmpty(message.body)) continue;
                 var dateCreated = DateTime.Parse(message.created);
                 if (dateMessage != dateCreated.ToString("yyyy.MM.dd"))
                 {

@@ -46,10 +46,14 @@
   <ItemGroup>
     <Compile Include="ApiManager.cs" />
     <Compile Include="ModelsProm\Message.cs" />
+    <Compile Include="ModelsProm\NameMultilang.cs" />
+    <Compile Include="ModelsProm\Product.cs" />
     <Compile Include="Models\ErrorMessage.cs" />
+    <Compile Include="Models\GetProduct.cs" />
     <Compile Include="Models\MarkMessageRead.cs" />
     <Compile Include="Models\MessagesHistory.cs" />
     <Compile Include="Models\SendMessage.cs" />
+    <Compile Include="Models\SendOurMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestData.cs" />
   </ItemGroup>

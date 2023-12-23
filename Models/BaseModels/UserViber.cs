@@ -33,6 +33,7 @@ namespace Models
         Pool = 2,
         Site = 3,
         Buhnet = 4,
-        Worker = 5
+        Worker = 5,
+        WorkerDriver = 6
     }
 }

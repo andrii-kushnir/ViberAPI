@@ -74,9 +74,10 @@ namespace Arsenium
             this._lItem.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this._lItem.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this._lItem.Location = new System.Drawing.Point(178, 100);
+            this._lItem.Multiline = true;
             this._lItem.Name = "_lItem";
             this._lItem.ReadOnly = true;
-            this._lItem.Size = new System.Drawing.Size(578, 19);
+            this._lItem.Size = new System.Drawing.Size(779, 52);
             this._lItem.TabIndex = 11;
             this._lItem.TabStop = false;
             this._lItem.Text = "Питання про";

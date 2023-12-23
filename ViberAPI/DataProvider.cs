@@ -9,6 +9,8 @@ using Models;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Collections.Concurrent;
+using WordsMatching;
+using static Models.RouteSheet;
 
 namespace ViberAPI
 {
@@ -97,55 +99,6 @@ namespace ViberAPI
                             Codep = reader["codep"] == System.DBNull.Value ? 0 : Convert.ToInt32(reader["codep"])
                         };
                         
-                        var Id = Convert.ToString(reader["guid"]);
-                        oper.Id = String.IsNullOrWhiteSpace(Id) ? Guid.Empty : new Guid(Id);
-
-                        if (reader["permission"] != System.DBNull.Value)
-                            oper.SetPermission(Convert.ToString(reader["permission"]));
-
-                        result.Add(oper);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"DataProvider.GetOperatorsSQL(): {ex.Message}");
-                }
-                finally
-                {
-                    reader?.Close();
-                }
-
-                return result;
-            }
-        }
-
-        public List<User> GetWorkersSQL()
-        {
-            var result = new List<User>();
-            var query = $"SELECT * FROM [dbo].[ArseniumWorker]";
-            using (var connection = new SqlConnection(connectionSql100))
-            {
-                var command = new SqlCommand(query, connection);
-                SqlDataReader reader = null;
-                try
-                {
-                    connection.Open();
-                    reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        var oper = new UserArsenium
-                        {
-                            Name = Convert.ToString(reader["name"]),
-                            Login = Convert.ToString(reader["login"]),
-                            Password = Convert.ToString(reader["password"]),
-                            UserType = UserTypes.Asterium,
-                            Avatar = Convert.ToString(reader["icon"]),
-                            Online = false,
-                            Active = Convert.ToBoolean(reader["active"]),
-                            Codep = reader["codep"] == System.DBNull.Value ? 0 : Convert.ToInt32(reader["codep"])
-                        };
-
                         var Id = Convert.ToString(reader["guid"]);
                         oper.Id = String.IsNullOrWhiteSpace(Id) ? Guid.Empty : new Guid(Id);
 
@@ -514,6 +467,32 @@ namespace ViberAPI
             return result;
         }
 
+        public void SaveRoute(RouteSheet route, UserViber userViber)
+        {
+            var passenger = Regex.Replace(route.Passenger, @"'", @"''");
+            var remark = Regex.Replace(route.Remark, @"'", @"''");
+            string query = null;
+            if (route.MediatePoint.Count == 0)
+            {
+                query = $"INSERT INTO [dbo].[ArseniumRouteSheet] ([codep], [fromtime], [frompoint], [totime], [topoint], [distance], [codec], [passenger], [remark]) VALUES ({userViber.codep}, '{route.FromPoint.Time:yyyy-MM-dd HH:mm:ss}', '{Regex.Replace(route.FromPoint.Point, @"'", @"''")}', '{route.ToPoint.Time:yyyy-MM-dd HH:mm:ss}', '{Regex.Replace(route.ToPoint.Point, @"'", @"''")}', {route.Distance}, {route.PassengerCode}, '{passenger}', '{remark}')";
+                Enqueue100(query);
+            }
+            else
+            {
+                var from = route.FromPoint;
+                RoutePoint to;
+                foreach (var point in route.MediatePoint)
+                {
+                    to = point;
+                    query = $"INSERT INTO [dbo].[ArseniumRouteSheet] ([codep], [fromtime], [frompoint], [totime], [topoint], [distance], [codec], [passenger], [remark]) VALUES ({userViber.codep}, '{from.Time:yyyy-MM-dd HH:mm:ss}', '{Regex.Replace(from.Point, @"'", @"''")}', '{to.Time:yyyy-MM-dd HH:mm:ss}', '{Regex.Replace(to.Point, @"'", @"''")}', 0, {route.PassengerCode}, '{passenger}', '')";
+                    Enqueue100(query);
+                    from = to;
+                }
+                query = $"INSERT INTO [dbo].[ArseniumRouteSheet] ([codep], [fromtime], [frompoint], [totime], [topoint], [distance], [codec], [passenger], [remark]) VALUES ({userViber.codep}, '{from.Time:yyyy-MM-dd HH:mm:ss}', '{Regex.Replace(from.Point, @"'", @"''")}', '{route.ToPoint.Time:yyyy-MM-dd HH:mm:ss}', '{Regex.Replace(route.ToPoint.Point, @"'", @"''")}', {route.Distance}, {route.PassengerCode}, '{passenger}', '{remark}')";
+                Enqueue100(query);
+            }
+        }
+
         public void Run100SQL(string query)
         {
             if (String.IsNullOrWhiteSpace(query))
@@ -544,7 +523,7 @@ namespace ViberAPI
         public void GetClientFromSQL(UserViber user)
         {
             var query = $"EXECUTE [dbo].[us_Asterium_GetClient] '{user.phone}'";
-            using (var connection = new SqlConnection(connectionSql4))  //4 Сервер!!!!
+            using (var connection = new SqlConnection(connectionSql4))
             {
                 var command = new SqlCommand(query, connection);
                 SqlDataReader reader = null;
@@ -579,12 +558,52 @@ namespace ViberAPI
             }
         }
 
+        public void SaveWorkerSQL(UserViber user, InviteType inviteType)
+        {
+            if (user.inviteType == inviteType && user.codep == 0)
+                return;
+            user.inviteType = inviteType;
+            if (user.codep != 0)
+            {
+                var query = $"EXECUTE [dbo].[us_Asterium_GetWorkers] {user.codep}";
+                using (var connection = new SqlConnection(connectionSql4))
+                {
+                    var command = new SqlCommand(query, connection);
+                    SqlDataReader reader = null;
+                    try
+                    {
+                        connection.Open();
+                        reader = command.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            user.buhnetName = Convert.ToString(reader["namep"]) + " " + Convert.ToString(reader["iname"]) + " " + Convert.ToString(reader["fname"]);
+                        }
+                        else //не наш працівник
+                        {
+                            user.buhnetName = null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"DataProvider.GetWorkerFromSQL(): {ex.Message}");
+                    }
+                    finally
+                    {
+                        reader?.Close();
+                    }
+                }
+            }
+
+            var querySave = $"UPDATE [dbo].[ArseniumViberClients] SET [codep] = '{(user.codep != 0 ? user.codep : "NULL" )}', [namep] = {(user.buhnetName == null ? "'"+user.buhnetName+"'" : "NULL")}, [inviteType] = {(int)user.inviteType} WHERE viberId = '{user.idViber}'";
+            Enqueue100(querySave);
+        }
+
         public List<string> MyOrders(string phone)
         {
             var result = new List<string>();
             var orderList = new List<ProformaOrder>();
             var query = $"EXECUTE [dbo].[us_Asterium_GetOrders] '{phone}'";
-            using (var connection = new SqlConnection(connectionSql4))   //4 Сервер!!!!
+            using (var connection = new SqlConnection(connectionSql4))
             {
                 var command = new SqlCommand(query, connection);
                 SqlDataReader reader = null;
@@ -631,6 +650,69 @@ namespace ViberAPI
                     result.Add(orderString);
                 }
 
+            }
+            return result;
+        }
+
+        public List<UserSQL> GetFellows(int codenWorker, string name)
+        {
+            var result = new List<UserSQL>();
+            var query = $"SELECT DISTINCT Travel_List.codec AS codec, Travel_List.namec AS namec FROM [Sk1].[dbo].[Travel], [Sk1].[dbo].[Travel_List] WHERE Travel.coden = Travel_List.coden AND daten1 > '2018-01-01' AND Travel.codep = {codenWorker} AND namec LIKE '{name}%' ORDER BY Travel_List.namec";
+            using (var connection = new SqlConnection(connectionSql4))
+            {
+                var command = new SqlCommand(query, connection);
+                SqlDataReader reader = null;
+                try
+                {
+                    connection.Open();
+                    reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        var user = new UserSQL { Id = Convert.ToInt32(reader["codec"]), Name = reader["namec"].ToString() };
+                        result.Add(user);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"DataProvider.GetFellows(): {ex.Message}");
+                }
+                finally
+                {
+                    reader?.Close();
+                }
+            }
+            return result;
+        }
+
+        public List<UserSQL> GetWorkers(string name)
+        {
+            var result = new List<UserSQL>();
+            var query = $"SELECT [coden], [namep], [iname], [fname] FROM [Kadr].[dbo].[Kadr] WHERE datezv IS NULL AND namep + ' ' + iname + ' ' + fname LIKE '{name}%'";
+            using (var connection = new SqlConnection(connectionSql4))
+            {
+                var command = new SqlCommand(query, connection);
+                SqlDataReader reader = null;
+                try
+                {
+                    connection.Open();
+                    reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        var user = new UserSQL { Id = Convert.ToInt32(reader["coden"]), FirstName = reader["iname"].ToString(), LastName = reader["namep"].ToString(), Surname = reader["fname"].ToString() };
+                        user.Name = user.LastName + ' ' + user.FirstName + ' ' + user.Surname;
+                        result.Add(user);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"DataProvider.GetWorkers(): {ex.Message}");
+                }
+                finally
+                {
+                    reader?.Close();
+                }
             }
             return result;
         }

@@ -37,8 +37,6 @@ namespace Models
         Viber = 2,
         Telegram = 3,
         Rozetka = 4,
-        Prom = 5,
-        WorkerUnknown = 10,
-        WorkerDriver = 11
+        Prom = 5
     }
 }

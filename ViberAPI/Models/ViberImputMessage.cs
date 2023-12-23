@@ -40,6 +40,7 @@ namespace ViberAPI.Models
         public string text { get; set; }
         public string type { get; set; }
         public PhoneNumber contact { get; set; }
+        public Location location { get; set; }
         public string media { get; set; }
         public string thumbnail { get; set; }
         public int size { get; set; }
@@ -50,5 +51,12 @@ namespace ViberAPI.Models
     public class PhoneNumber
     {
         public string phone_number { get; set; }
+    }
+
+    public class Location
+    {
+        public double lat { get; set; }
+        public double lon { get; set; }
+        public string address { get; set; }
     }
 }

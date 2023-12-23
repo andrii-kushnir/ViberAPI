@@ -41,7 +41,7 @@ namespace Arsenium
                 switch (context.context_item_type)
                 {
                     case "product":
-                        _lItem.Text = "Запитання про товар " + context.context_item_id.ToString();
+                        _lItem.Text = $"Запитання про товар: {context.body}; Касовий код: {context.context_item_id}";
                         if (context.context_item_image_url != null)
                             _pbContextImage.Image = context.context_item_image_url.GetIconFromWebImage();
                         break;
