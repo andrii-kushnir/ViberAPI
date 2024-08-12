@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using ViberAPI.Models;
 using System.Net.Http;
 using Newtonsoft.Json;
-using WordsMatching;
 using Microsoft.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Net;

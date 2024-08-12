@@ -34,9 +34,6 @@
     <Reference Include="RozetkaAPI">
       <HintPath>..\..\RozetkaAPI\RozetkaAPI\bin\Debug\RozetkaAPI.dll</HintPath>
     </Reference>
-    <Reference Include="WordsMatching">
-      <HintPath>..\..\TelegramBot\Similarity\bin\Release\WordsMatching.exe</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

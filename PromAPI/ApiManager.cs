@@ -121,7 +121,7 @@ namespace PromAPI
             return false;
         }
 
-        public Product GetProduct(int id, out string error)
+        public Product GetProduct(long id, out string error)
         {
             Product result = null;
             string response = null;

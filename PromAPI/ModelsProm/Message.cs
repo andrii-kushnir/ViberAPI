@@ -15,7 +15,7 @@ namespace PromAPI.ModelsProm
         public DateTime date_sent { get; set; }
         public string type { get; set; }
         public string status { get; set; }
-        public int? context_item_id { get; set; }
+        public long? context_item_id { get; set; }
         public string context_item_image_url { get; set; }
         public string context_item_type { get; set; }
         public string user_name { get; set; }

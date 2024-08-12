@@ -839,18 +839,24 @@ namespace ViberAPI
                 }
             }
             if (messages == null || messages.Count == 0) return;
-            //AddMessageProm(messages);
+            //"прочитання" пустих і старих повідомлень:
+            foreach (var msg in messages.Where(m => !m.is_sender && (m.body == null || m.date_sent < DateTime.Now.AddDays(-3))).ToList())
+            {
+                if (_promApi.MarkMessageRead(msg.id, msg.room_id, out error))
+                    msg.status = "read";
+                if (!String.IsNullOrEmpty(error))
+                    Logger.Error("Пром MarkMessageRead: " + error);
+            }
+            //--------------------------------
             messages.RemoveAll(m => m.date_sent < DateTime.Now.AddDays(-3));
             if (messages.Count == 0) return;
             var rooms = messages.GroupBy(m => m.room_ident).Select(g => g.First().room_ident).ToList();
             foreach (var room in rooms)
             {
-                //var messagesUser = messagesProm.Where(m => m.room_ident == room).ToList();
                 var messagesUser = _promApi.GetChatMessages(room, out error);
                 if (!String.IsNullOrEmpty(error))
                     Logger.Error("Пром GetChatMessages(room): " + error);
                 if (messagesUser.Count == 0) break;
-                //AddMessageProm(messagesUser);
                 foreach (var message in messagesUser)
                 {
                     if (message.status == "new" && !message.is_sender)
@@ -863,7 +869,7 @@ namespace ViberAPI
                     if (product != null)
                     {
                         context.body = product.name;
-                        if (Int32.TryParse(product.sku, out var codetvun))
+                        if (Int64.TryParse(product.sku, out var codetvun))
                             context.context_item_id = codetvun;
                     }
                 }
@@ -891,13 +897,5 @@ namespace ViberAPI
             }
         }
 
-        private void AddMessageProm(List<PromAPI.ModelsProm.Message> messages)
-        {
-            foreach (var message in messages)
-            {
-                if (messagesProm.All(m => m.id != message.id))
-                    messagesProm.Add(message);
-            }
-        }
     }
 }
