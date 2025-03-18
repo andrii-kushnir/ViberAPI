@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 //using static ViberAPI.Permissions;
 
 namespace Models
@@ -21,10 +16,17 @@ namespace Models
         private uint _permission = 0;
         [JsonIgnore]
         public int Codep = 0;
+        public OperTypes OperType { get; set; }
 
         public void SetPermission(string permission)
         {
             _permission = permission.ToUint();
+        }
+
+        public enum OperTypes
+        {
+            Usual = 1,
+            Workflow = 2
         }
     }
 }

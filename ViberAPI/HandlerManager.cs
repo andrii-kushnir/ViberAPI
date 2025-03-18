@@ -240,6 +240,7 @@ namespace ViberAPI
                     break;
                 case MessageTypes.ChangeTypeRequest:
                     {
+#warning !!!!!!!!!!!Дописати логіку обробки зміни оператора!!!
                         var message = JsonConvert.DeserializeObject<ChangeTypeRequest>(e.MessageJSON);
                         var userViber = UserManager.Current.FindUserViber(message.User.Id);
                         if (userViber.inviteType != message.InviteType)
@@ -773,7 +774,7 @@ namespace ViberAPI
                     allchat.AddRange(chats);
                 }
             }
-            if (count.content.itemsChatUnread != 0 || count.content.sellerChatUnread != 0)
+            if (count.content.itemsChatUnread != 0 || count.content.sellerChatUnread != 0 || count.content.itemSellerMessagesUnread != 0)
             {
                 var chats = ApiManager.Current.GetMessagesOrder("items")?.content.chats;
                 if (chats != null)
@@ -848,8 +849,8 @@ namespace ViberAPI
                     Logger.Error("Пром MarkMessageRead: " + error);
             }
             //--------------------------------
-            messages.RemoveAll(m => m.date_sent < DateTime.Now.AddDays(-3));
-            if (messages.Count == 0) return;
+            //messages.RemoveAll(m => m.date_sent < DateTime.Now.AddDays(-3));
+            //if (messages.Count == 0) return;
             var rooms = messages.GroupBy(m => m.room_ident).Select(g => g.First().room_ident).ToList();
             foreach (var room in rooms)
             {
@@ -862,7 +863,7 @@ namespace ViberAPI
                     if (message.status == "new" && !message.is_sender)
                         Logger.Info($"MessageFromProm. Чат: {room}, Text: {message.body}");
                 }
-                var context = messagesUser.FirstOrDefault(m => m.type == "context" && !m.is_sender && m.context_item_type != "file") ?? messagesUser.FirstOrDefault(m => (!m.is_sender));
+                var context = messagesUser.FirstOrDefault(m => m.type == "context" && m.context_item_type != "file") ?? messagesUser.FirstOrDefault(m => (!m.is_sender));
                 if (context != null && context.context_item_type == "product" && context.context_item_id != null && context.context_item_id != 0)
                 {
                     var product = _promApi.GetProduct(context.context_item_id.Value, out error);

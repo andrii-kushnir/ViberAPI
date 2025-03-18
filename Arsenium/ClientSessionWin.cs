@@ -76,6 +76,7 @@ namespace Arsenium
             {
                 lbSubscribed.Visible = false;
                 tempWidth = lbInvite.Width;
+                btWorkflow.Text = "Змінити тип на Workflow";
                 switch (_client.DetailsInfo.InviteType)
                 { 
                     case InviteType.DirectLink:
@@ -89,6 +90,13 @@ namespace Arsenium
                         break;
                     case InviteType.Buhnet:
                         lbInvite.Text = "Прийшов по запрошенню з Buhnet";
+                        break;
+                    case InviteType.Workflow:
+                        lbInvite.Text = "Активний клієнт(йде доставка)";
+                        btWorkflow.Text = "Змінити тип на звичайний";
+                        break;
+                    case InviteType.PermClient:
+                        lbInvite.Text = "Постійний клієнт(мав доставки)";
                         break;
                     case InviteType.Worker:
                         lbInvite.Text = "Запрошений, як працівник";
@@ -762,6 +770,7 @@ namespace Arsenium
                 {
                     _client.DetailsInfo.InviteType = clientType;
                     var tempWidth = lbInvite.Width;
+                    btWorkflow.Text = "Змінити тип на Workflow";
                     switch (_client.DetailsInfo.InviteType)
                     {
                         case InviteType.DirectLink:
@@ -775,6 +784,13 @@ namespace Arsenium
                             break;
                         case InviteType.Buhnet:
                             lbInvite.Text = "Прийшов по запрошенню з Buhnet";
+                            break;
+                        case InviteType.Workflow:
+                            lbInvite.Text = "Активний клієнт(йде доставка)";
+                            btWorkflow.Text = "Змінити тип на звичайний";
+                            break;
+                        case InviteType.PermClient:
+                            lbInvite.Text = "Постійний клієнт(мав доставки)";
                             break;
                         case InviteType.Worker:
                             lbInvite.Text = "Запрошений, як працівник";
@@ -794,6 +810,17 @@ namespace Arsenium
 
         private void btOperator_Click(object sender, EventArgs e)
         {
+            if (ClientManager.Myself.OperType == UserArsenium.OperTypes.Workflow && _client.DetailsInfo.InviteType != InviteType.Workflow)
+            {
+                MessageBox.Show("Оператор Workflow не може привязати дло себе клієнта не Workflow");
+                return;
+            }
+            if (ClientManager.Myself.OperType == UserArsenium.OperTypes.Usual && _client.DetailsInfo.InviteType == InviteType.Workflow)
+            {
+                MessageBox.Show("Це клієнт Workflow. Ви не можете привязати його до себе.");
+                return;
+            }
+
             lbOperator.Text = String.IsNullOrWhiteSpace(ClientManager.Myself.Name) ? $"Оператор: Немає прив'язки" : $"Оператор: {ClientManager.Myself.Name}";
             _client.DetailsInfo.OperatorName = ClientManager.Myself.Name;
             var request = new ChangeOperatorRequest(new User(_client.Id, UserTypes.Viber));
@@ -877,6 +904,15 @@ namespace Arsenium
             _checkList.Add(message.MessageId, labelIcon);
             Program.Session.Send(request);
             tbSendMessage.Text = "";
+        }
+
+        private void btWorkflow_Click(object sender, EventArgs e)
+        {
+            if (_client.DetailsInfo.InviteType == InviteType.Workflow)
+                cbClientType.SelectedItem = InviteType.Workflow;
+            else
+                cbClientType.SelectedItem = InviteType.PermClient;
+            cbClientType_SelectionChangeCommitted(this, new EventArgs());
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)

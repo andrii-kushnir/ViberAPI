@@ -27,8 +27,7 @@ namespace PromAPI
         {
 #warning Бажано переробити цей метод на асинхрониий, тому що Пром інколи довго не відповідає і ложить весь сервер.
             List<Message> result = new List<Message>();
-            string response = null;
-
+            string response;
             try
             {
                 //response = RequestData.SendGet($"{apiPath}chat/messages_history?status=new&date_from=2023-10-14T00:00:00&limit=100", _token, out error);
@@ -74,7 +73,7 @@ namespace PromAPI
             //else
             //    keysBody = "{\"room_ident\":\"" + room_ident + "\", \"user_id\":" + user_ident + ", \"body\":\"" + text + "\"}";
 
-            string response = null;
+            string response;
             try
             {
                 response = RequestData.SendPost(apiPath + "chat/send_message", _token, keysBody, out error);
@@ -102,7 +101,7 @@ namespace PromAPI
         {
             var keysBody = "{\"message_id\":" + messageId + ", \"room_id\":\"" + room_id + "\"}";
 
-            string response = null;
+            string response;
             try
             {
                 response = RequestData.SendPost(apiPath + "chat/mark_message_read", _token, keysBody, out error);
@@ -124,7 +123,7 @@ namespace PromAPI
         public Product GetProduct(long id, out string error)
         {
             Product result = null;
-            string response = null;
+            string response;
             try
             {
                 response = RequestData.SendGet(apiPath + $"products/{id}", _token, out error);

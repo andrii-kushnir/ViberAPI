@@ -92,17 +92,22 @@ namespace ViberAPI
                             Login = Convert.ToString(reader["login"]),
                             Password = Convert.ToString(reader["password"]),
                             UserType = UserTypes.Asterium,
+                            OperType = UserArsenium.OperTypes.Usual,
                             Avatar = Convert.ToString(reader["icon"]),
                             Online = false,
                             Active = Convert.ToBoolean(reader["active"]),
                             Codep = reader["codep"] == System.DBNull.Value ? 0 : Convert.ToInt32(reader["codep"])
                         };
-                        
-                        var Id = Convert.ToString(reader["guid"]);
-                        oper.Id = String.IsNullOrWhiteSpace(Id) ? Guid.Empty : new Guid(Id);
 
                         if (reader["permission"] != System.DBNull.Value)
+                        {
                             oper.SetPermission(Convert.ToString(reader["permission"]));
+                            if (oper.Permission.IsRole(Permissions.PermissionRole.p_Workflow))
+                                oper.OperType = UserArsenium.OperTypes.Workflow;
+                        }
+
+                        var Id = Convert.ToString(reader["guid"]);
+                        oper.Id = String.IsNullOrWhiteSpace(Id) ? Guid.Empty : new Guid(Id);
 
                         result.Add(oper);
                     }
@@ -470,7 +475,7 @@ namespace ViberAPI
         {
             var passenger = Regex.Replace(route.Passenger, @"'", @"''");
             var remark = Regex.Replace(route.Remark, @"'", @"''");
-            string query = null;
+            string query;
             if (route.MediatePoint.Count == 0)
             {
                 query = $"INSERT INTO [dbo].[ArseniumRouteSheet] ([codep], [fromtime], [frompoint], [totime], [topoint], [distance], [codec], [passenger], [remark]) VALUES ({userViber.codep}, '{route.FromPoint.Time:yyyy-MM-dd HH:mm:ss}', '{Regex.Replace(route.FromPoint.Point, @"'", @"''")}', '{route.ToPoint.Time:yyyy-MM-dd HH:mm:ss}', '{Regex.Replace(route.ToPoint.Point, @"'", @"''")}', {route.Distance}, {route.PassengerCode}, '{passenger}', '{remark}')";

@@ -34,6 +34,8 @@ namespace Models
         Site = 3,
         Buhnet = 4,
         Worker = 5,
-        WorkerDriver = 6
+        WorkerDriver = 6,
+        PermClient = 7,
+        Workflow = 8
     }
 }

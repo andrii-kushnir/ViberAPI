@@ -31,7 +31,7 @@ namespace ViberAPI
             UserOffline = new List<UserViber>();
 
             var newZeroUser = new UserViber(Guid.NewGuid(), "ZeroUser", "", UserTypes.Viber) 
-            { 
+            {
                 idViber = "", 
                 subscribed = true, 
                 messageList = new List<ChatMessage>()
@@ -232,7 +232,7 @@ namespace ViberAPI
 
         public async Task AttachOperator(UserViber userViber, int operCode)
         {
-            var oper = UserList.Where(us => us.UserType == UserTypes.Asterium).FirstOrDefault(us => (us as UserArsenium)?.Codep == operCode) as UserArsenium;
+            UserArsenium oper = UserList.Where(us => us.UserType == UserTypes.Asterium).FirstOrDefault(us => (us as UserArsenium)?.Codep == operCode) as UserArsenium;
 
             if (oper == null || userViber.operatoId == oper.Id)
                 return;

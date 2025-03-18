@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseModels\ChatMessage.cs" />
+    <Compile Include="BaseModels\Permissions.cs" />
     <Compile Include="HashPassword.cs" />
     <Compile Include="LoggerMy.cs" />
     <Compile Include="Messages\Requests\ArseniumOfflineRequest.cs" />
@@ -103,7 +104,6 @@
     <Compile Include="Messages\Responses\UserListResponse.cs" />
     <Compile Include="Messages\UserBuhnet.cs" />
     <Compile Include="Network\TCPServer.cs" />
-    <Compile Include="BaseModels\Permissions.cs" />
     <Compile Include="BaseModels\Pool.cs" />
     <Compile Include="BaseModels\RouteSheet.cs" />
     <Compile Include="BaseModels\UserArsenium.cs" />

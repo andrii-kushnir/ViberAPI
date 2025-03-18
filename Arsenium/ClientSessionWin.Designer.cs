@@ -56,6 +56,8 @@ namespace Arsenium
             this.cmsTemplate = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem26 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem27 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem31 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem32 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem28 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem29 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem30 = new System.Windows.Forms.ToolStripMenuItem();
@@ -90,8 +92,7 @@ namespace Arsenium
             this.bSendImage = new System.Windows.Forms.Button();
             this.pbClipboardImage = new System.Windows.Forms.PictureBox();
             this.btClearInput = new System.Windows.Forms.Button();
-            this.toolStripMenuItem31 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem32 = new System.Windows.Forms.ToolStripMenuItem();
+            this.btWorkflow = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbPhoto)).BeginInit();
             this.pInfo.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -124,6 +125,7 @@ namespace Arsenium
             // pInfo
             // 
             this.pInfo.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pInfo.Controls.Add(this.btWorkflow);
             this.pInfo.Controls.Add(this.lbBuhnet);
             this.pInfo.Controls.Add(this.panel1);
             this.pInfo.Controls.Add(this.btOperator);
@@ -162,14 +164,14 @@ namespace Arsenium
             this.panel1.Controls.Add(this.btProforms);
             this.panel1.Location = new System.Drawing.Point(3, 33);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(334, 65);
+            this.panel1.Size = new System.Drawing.Size(334, 63);
             this.panel1.TabIndex = 13;
             // 
             // lbClientBuhnet
             // 
             this.lbClientBuhnet.AutoSize = true;
             this.lbClientBuhnet.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lbClientBuhnet.Location = new System.Drawing.Point(6, 13);
+            this.lbClientBuhnet.Location = new System.Drawing.Point(6, 11);
             this.lbClientBuhnet.Name = "lbClientBuhnet";
             this.lbClientBuhnet.Size = new System.Drawing.Size(108, 18);
             this.lbClientBuhnet.TabIndex = 13;
@@ -183,7 +185,7 @@ namespace Arsenium
             this.btProforms.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.btProforms.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btProforms.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btProforms.Location = new System.Drawing.Point(3, 34);
+            this.btProforms.Location = new System.Drawing.Point(3, 32);
             this.btProforms.Name = "btProforms";
             this.btProforms.Size = new System.Drawing.Size(323, 24);
             this.btProforms.TabIndex = 14;
@@ -198,7 +200,7 @@ namespace Arsenium
             this.btOperator.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.btOperator.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btOperator.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btOperator.Location = new System.Drawing.Point(171, 104);
+            this.btOperator.Location = new System.Drawing.Point(259, 99);
             this.btOperator.Name = "btOperator";
             this.btOperator.Size = new System.Drawing.Size(160, 24);
             this.btOperator.TabIndex = 7;
@@ -211,7 +213,7 @@ namespace Arsenium
             this.lbOperator.AutoSize = true;
             this.lbOperator.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.lbOperator.ForeColor = System.Drawing.Color.Red;
-            this.lbOperator.Location = new System.Drawing.Point(6, 108);
+            this.lbOperator.Location = new System.Drawing.Point(6, 103);
             this.lbOperator.Name = "lbOperator";
             this.lbOperator.Size = new System.Drawing.Size(69, 16);
             this.lbOperator.TabIndex = 12;
@@ -221,7 +223,7 @@ namespace Arsenium
             // 
             this.lbClientType.AutoSize = true;
             this.lbClientType.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lbClientType.Location = new System.Drawing.Point(3, 138);
+            this.lbClientType.Location = new System.Drawing.Point(3, 134);
             this.lbClientType.Name = "lbClientType";
             this.lbClientType.Size = new System.Drawing.Size(112, 14);
             this.lbClientType.TabIndex = 11;
@@ -230,7 +232,7 @@ namespace Arsenium
             // cbClientType
             // 
             this.cbClientType.FormattingEnabled = true;
-            this.cbClientType.Location = new System.Drawing.Point(117, 133);
+            this.cbClientType.Location = new System.Drawing.Point(117, 130);
             this.cbClientType.Name = "cbClientType";
             this.cbClientType.Size = new System.Drawing.Size(133, 21);
             this.cbClientType.TabIndex = 8;
@@ -392,7 +394,7 @@ namespace Arsenium
             this.toolStripMenuItem12,
             this.toolStripMenuItem13});
             this.cmsTemplate.Name = "cmsTemplate";
-            this.cmsTemplate.Size = new System.Drawing.Size(201, 378);
+            this.cmsTemplate.Size = new System.Drawing.Size(201, 356);
             // 
             // toolStripMenuItem26
             // 
@@ -409,6 +411,20 @@ namespace Arsenium
             this.toolStripMenuItem27.Name = "toolStripMenuItem27";
             this.toolStripMenuItem27.Size = new System.Drawing.Size(200, 22);
             this.toolStripMenuItem27.Text = "Очікуйте";
+            // 
+            // toolStripMenuItem31
+            // 
+            this.toolStripMenuItem31.Name = "toolStripMenuItem31";
+            this.toolStripMenuItem31.Size = new System.Drawing.Size(233, 22);
+            this.toolStripMenuItem31.Text = "Перевіряю інформацію";
+            this.toolStripMenuItem31.Click += new System.EventHandler(this.toolStripMenuItem31_Click);
+            // 
+            // toolStripMenuItem32
+            // 
+            this.toolStripMenuItem32.Name = "toolStripMenuItem32";
+            this.toolStripMenuItem32.Size = new System.Drawing.Size(233, 22);
+            this.toolStripMenuItem32.Text = "Очікуйте(треба більше часу)";
+            this.toolStripMenuItem32.Click += new System.EventHandler(this.toolStripMenuItem32_Click);
             // 
             // toolStripMenuItem28
             // 
@@ -708,19 +724,20 @@ namespace Arsenium
             this.btClearInput.UseVisualStyleBackColor = true;
             this.btClearInput.Click += new System.EventHandler(this.btClearInput_Click);
             // 
-            // toolStripMenuItem31
+            // btWorkflow
             // 
-            this.toolStripMenuItem31.Name = "toolStripMenuItem31";
-            this.toolStripMenuItem31.Size = new System.Drawing.Size(205, 22);
-            this.toolStripMenuItem31.Text = "Перевіряю інформацію";
-            this.toolStripMenuItem31.Click += new System.EventHandler(this.toolStripMenuItem31_Click);
-            // 
-            // toolStripMenuItem32
-            // 
-            this.toolStripMenuItem32.Name = "toolStripMenuItem32";
-            this.toolStripMenuItem32.Size = new System.Drawing.Size(233, 22);
-            this.toolStripMenuItem32.Text = "Очікуйте(треба більше часу)";
-            this.toolStripMenuItem32.Click += new System.EventHandler(this.toolStripMenuItem32_Click);
+            this.btWorkflow.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btWorkflow.BackgroundImage")));
+            this.btWorkflow.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btWorkflow.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.btWorkflow.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btWorkflow.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btWorkflow.Location = new System.Drawing.Point(259, 130);
+            this.btWorkflow.Name = "btWorkflow";
+            this.btWorkflow.Size = new System.Drawing.Size(160, 24);
+            this.btWorkflow.TabIndex = 17;
+            this.btWorkflow.Text = "Змінити тип на Workflow";
+            this.btWorkflow.UseVisualStyleBackColor = true;
+            this.btWorkflow.Click += new System.EventHandler(this.btWorkflow_Click);
             // 
             // ClientSessionWin
             // 
@@ -823,5 +840,6 @@ namespace Arsenium
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem30;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem31;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem32;
+        private System.Windows.Forms.Button btWorkflow;
     }
 }
